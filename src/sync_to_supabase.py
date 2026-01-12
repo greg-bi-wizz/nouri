@@ -38,9 +38,12 @@ load_dotenv()
 # Configuration
 DATA_DIR = 'data/nourishbox'
 CSV_FILES = [
+    'plan_dim.csv',
+    'date_dim.csv',
     'customers.csv',
     'customer_preferences.csv',
     'subscriptions.csv',
+    'subscription_monthly.csv',
     'orders.csv',
     'order_items.csv',
     'churn_events.csv',
@@ -51,9 +54,12 @@ CSV_FILES = [
 
 # Table configurations (table_name: primary_key)
 TABLE_CONFIGS = {
+    'plan_dim': 'plan_key',
+    'date_dim': 'date_key',
     'customers': 'customer_id',
     'customer_preferences': 'customer_id',
     'subscriptions': 'subscription_id',
+    'subscription_monthly': 'snapshot_id',
     'orders': 'order_id',
     'order_items': 'item_id',
     'churn_events': 'churn_id',
@@ -105,12 +111,32 @@ class SupabaseSync:
             self.cursor = self.conn.cursor()
             print("✅ Connected successfully!\n")
 
+        except psycopg2.OperationalError as e:
+            error_msg = str(e)
+            print(f"\n❌ Connection failed: {error_msg}")
+
+            if "could not translate host name" in error_msg:
+                print("\n🔍 DIAGNOSIS: Invalid Hostname")
+                print("   The SUPABASE_HOST in your .env file is incorrect.")
+                print("   It currently is set to something that doesn't exist.")
+                print("\n👉 SOLUTION:")
+                print("   1. Go to Supabase Dashboard -> Project Settings -> Database")
+                print("   2. Look for 'Connection parameters'")
+                print("   3. Copy the 'Host' value (e.g., aws-0-eu-central-1.pooler.supabase.com)")
+                print("   4. Check if 'Port' is 5432 or 6543 and update .env if needed")
+                print("   5. Update your .env file")
+            elif "password authentication failed" in error_msg:
+                print("\n🔍 DIAGNOSIS: Wrong Password")
+                print("   The password in your .env file is incorrect.")
+            else:
+                print("\nTroubleshooting:")
+                print("  1. Check your credentials in .env file")
+                print("  2. Verify Supabase project is active")
+
+            sys.exit(1)
+
         except psycopg2.Error as e:
-            print(f"\n❌ Connection failed: {e}")
-            print("\nTroubleshooting:")
-            print("  1. Check your credentials in .env file")
-            print("  2. Verify Supabase project is active")
-            print("  3. Check if your IP is allowed (Supabase allows all by default)")
+            print(f"\n❌ Database error: {e}")
             sys.exit(1)
 
     def disconnect(self):
@@ -135,37 +161,49 @@ class SupabaseSync:
 
     def create_table_from_csv(self, csv_file, table_name):
         """Create table schema based on CSV columns"""
-        df = pd.read_csv(csv_file, nrows=5)  # Just read a few rows to get schema
+        df = pd.read_csv(csv_file, nrows=1000)  # Read more rows to get better schema inference
 
         # Map pandas dtypes to PostgreSQL types
         type_mapping = {
             'int64': 'INTEGER',
-            'float64': 'DECIMAL(10, 2)',
+            'float64': 'DECIMAL(14, 2)',
             'bool': 'BOOLEAN',
             'object': 'TEXT',
             'datetime64[ns]': 'DATE'
         }
+
+        decimal_keywords = (
+            'price', 'cost', 'total', 'value', 'budget', 'ctr', 'rate',
+            'mrr', 'amount', 'discount'
+        )
+        date_columns = {'month_start', 'date'}
 
         # Build CREATE TABLE statement
         columns = []
         primary_key = TABLE_CONFIGS.get(table_name)
 
         for col, dtype in df.dtypes.items():
+            name_lower = col.lower()
             pg_type = type_mapping.get(str(dtype), 'TEXT')
 
-            # Adjust specific columns
             if col == primary_key:
                 columns.append(f'    {col} TEXT PRIMARY KEY')
-            elif col.endswith('_date'):
+            elif col in date_columns or name_lower.endswith('_date'):
                 columns.append(f'    {col} DATE')
-            elif col.endswith('_id') and col != primary_key:
+            elif name_lower.endswith('_id') and col != primary_key:
                 columns.append(f'    {col} TEXT')
-            elif col in ['rating', 'age', 'household_size', 'quantity', 'calories']:
+            elif any(x in name_lower for x in ['zip', 'phone', 'postal']):
+                columns.append(f'    {col} TEXT')
+            elif name_lower in ['rating', 'age', 'household_size', 'quantity', 'calories',
+                                'year', 'quarter', 'month', 'day', 'day_of_week']:
                 columns.append(f'    {col} INTEGER')
-            elif col in ['price', 'cost', 'total', 'value', 'budget', 'ctr', 'rate']:
-                columns.append(f'    {col} DECIMAL(10, 2)')
-            elif col in ['auto_renew', 'active', 'would_recommend', 'attempted_retention',
-                        'retention_offer_accepted', 'feedback_provided']:
+            elif any(keyword in name_lower for keyword in decimal_keywords):
+                columns.append(f'    {col} DECIMAL(14, 2)')
+            elif str(dtype) == 'int64':
+                columns.append(f'    {col} INTEGER')
+            elif str(dtype) == 'float64':
+                columns.append(f'    {col} DECIMAL(14, 2)')
+            elif str(dtype) == 'bool':
                 columns.append(f'    {col} BOOLEAN')
             else:
                 columns.append(f'    {col} {pg_type}')
@@ -182,6 +220,16 @@ class SupabaseSync:
             print(f"   ✓ Table '{table_name}' ready")
         except psycopg2.Error as e:
             print(f"   ✗ Error creating table '{table_name}': {e}")
+            self.conn.rollback()
+
+    def drop_table(self, table_name):
+        """Drop table if exists"""
+        try:
+            self.cursor.execute(f"DROP TABLE IF EXISTS {table_name} CASCADE;")
+            self.conn.commit()
+            print(f"   ✓ Dropped table '{table_name}'")
+        except psycopg2.Error as e:
+            print(f"   ✗ Error dropping table '{table_name}': {e}")
             self.conn.rollback()
 
     def clear_table(self, table_name):
@@ -321,6 +369,8 @@ def main():
     parser = argparse.ArgumentParser(description='Sync NourishBox data to Supabase')
     parser.add_argument('--clear', action='store_true',
                        help='Clear existing data before loading (fresh start)')
+    parser.add_argument('--reset', action='store_true',
+                       help='Drop and recreate tables (full schema reset)')
     parser.add_argument('--setup', action='store_true',
                        help='Create .env template and setup instructions')
     args = parser.parse_args()
@@ -366,11 +416,15 @@ def main():
                 print(f"⚠️  Skipping {csv_file} (not found)")
                 continue
 
+            # Reset if requested
+            if args.reset:
+                sync.drop_table(table_name)
+
             # Create table
             sync.create_table_from_csv(csv_path, table_name)
 
-            # Clear if requested
-            if args.clear:
+            # Clear if requested (only if not resetting)
+            if args.clear and not args.reset:
                 sync.clear_table(table_name)
 
         # Load data

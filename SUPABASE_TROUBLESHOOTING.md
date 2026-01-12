@@ -231,6 +231,25 @@ CREATE INDEX idx_subscriptions_customer ON subscriptions(customer_id);
 
 ## 🔌 Power BI Connection Issues
 
+### Error: "The remote certificate is invalid according to the validation procedure"
+
+This error occurs when Power BI cannot verify the Supabase SSL certificate.
+
+**Fix 1: Trust the Certificate (Recommended)**
+1.  This error often happens because the Windows (or VM) Certificate Store is missing the Root CA.
+2.  If you are running Power BI in a VM on a Mac, **run Windows Update** inside the VM. This often installs the missing "Let's Encrypt" or "DigiCert" root certificates.
+
+**Fix 2: Check Server Name Exactness**
+*   Ensure the "Server" field in Power BI is **exactly**: `aws-0-eu-central-1.pooler.supabase.com`
+*   No `https://` prefix.
+*   No trailing spaces.
+*   Formatting helper: `aws-0-eu-central-1.pooler.supabase.com:6543` (sometimes putting port in server field helps).
+
+**Fix 3: Download Supabase Root CA**
+1.  Go to [Supabase Database Settings](https://supabase.com/dashboard/project/_/settings/database).
+2.  Look for "SSL Configuration" and download the Root Certificate.
+3.  Install it on the machine running Power BI (double click -> Install Certificate -> Place in "Trusted Root Certification Authorities").
+
 ### Issue: Can't connect to Supabase
 
 **Check:**

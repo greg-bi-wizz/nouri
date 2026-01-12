@@ -13,27 +13,22 @@ import numpy as np
 DATA_DIR = 'data/nourishbox'
 
 def calculate_mrr():
-    """Calculate Monthly Recurring Revenue from subscriptions and orders"""
+    """Calculate Monthly Recurring Revenue using the snapshot table and orders"""
 
     print("Loading data...")
 
-    # Load subscriptions
-    subscriptions = pd.read_csv(f'{DATA_DIR}/subscriptions.csv')
+    subscription_monthly = pd.read_csv(f'{DATA_DIR}/subscription_monthly.csv')
     orders = pd.read_csv(f'{DATA_DIR}/orders.csv')
 
-    # Convert dates
-    subscriptions['start_date'] = pd.to_datetime(subscriptions['start_date'])
-    subscriptions['end_date'] = pd.to_datetime(subscriptions['end_date'])
+    subscription_monthly['month_start'] = pd.to_datetime(subscription_monthly['month_start'])
     orders['order_date'] = pd.to_datetime(orders['order_date'])
 
-    print(f"✓ Loaded {len(subscriptions)} subscriptions")
+    print(f"✓ Loaded {len(subscription_monthly)} subscription snapshots")
     print(f"✓ Loaded {len(orders)} orders\n")
 
-    # Get date range
-    start_date = subscriptions['start_date'].min()
-    end_date = datetime(2024, 12, 31)
+    start_date = subscription_monthly['month_start'].min()
+    end_date = subscription_monthly['month_start'].max()
 
-    # Create monthly date range
     date_range = pd.date_range(start=start_date, end=end_date, freq='MS')
 
     mrr_data = []
@@ -41,24 +36,14 @@ def calculate_mrr():
     print("Calculating MRR for each month...")
 
     for current_date in date_range:
-        # Count active subscriptions for this month
-        active_subs = subscriptions[
-            (subscriptions['start_date'] <= current_date) &
-            ((subscriptions['end_date'].isna()) | (subscriptions['end_date'] >= current_date))
-        ]
+        snapshots = subscription_monthly[subscription_monthly['month_start'] == current_date]
 
-        # Calculate MRR (sum of monthly prices for active subscriptions)
-        mrr = active_subs['monthly_price'].sum()
+        mrr = snapshots['mrr'].sum()
+        active_count = snapshots[snapshots['status'].isin(['active', 'upgraded'])]['subscription_id'].nunique()
 
-        # Count active subscribers
-        active_count = len(active_subs)
-
-        # Calculate actual revenue for the month (from orders)
-        month_start = current_date
         month_end = current_date + pd.DateOffset(months=1)
-
         actual_revenue = orders[
-            (orders['order_date'] >= month_start) &
+            (orders['order_date'] >= current_date) &
             (orders['order_date'] < month_end) &
             (orders['delivery_status'].isin(['delivered', 'pending', 'delayed']))
         ]['order_total'].sum()
@@ -73,6 +58,8 @@ def calculate_mrr():
 
     mrr_df = pd.DataFrame(mrr_data)
 
+    mrr_df['growth_rate'] = mrr_df['mrr'].pct_change() * 100
+
     print(f"✓ Calculated MRR for {len(mrr_df)} months\n")
 
     return mrr_df
@@ -82,6 +69,8 @@ def create_mrr_visualization(mrr_df):
     """Create comprehensive MRR visualizations"""
 
     print("Creating visualizations...")
+
+    mrr_df = mrr_df.copy()
 
     # Create figure with subplots
     fig, axes = plt.subplots(2, 2, figsize=(16, 10))
@@ -231,6 +220,9 @@ def create_mrr_visualization(mrr_df):
 def print_mrr_summary(mrr_df):
     """Print MRR summary statistics"""
 
+    def safe_div(num, denom):
+        return num / denom if denom else 0
+
     print("\n" + "="*70)
     print("MRR SUMMARY STATISTICS")
     print("="*70)
@@ -242,12 +234,13 @@ def print_mrr_summary(mrr_df):
     print(f"\n📊 Current Metrics (as of {current['year_month']}):")
     print(f"  MRR:                ${current['mrr']:,.2f}")
     print(f"  Active Subscribers: {current['active_subscribers']:,}")
-    print(f"  ARPU (Avg Revenue Per User): ${current['mrr'] / current['active_subscribers']:.2f}")
+    arpu = safe_div(current['mrr'], current['active_subscribers'])
+    print(f"  ARPU (Avg Revenue Per User): ${arpu:.2f}")
     print(f"  ARR (Annual Run Rate): ${current['mrr'] * 12:,.2f}")
 
     # Growth metrics
     print(f"\n📈 Growth Metrics:")
-    total_growth = ((current['mrr'] - first['mrr']) / first['mrr']) * 100
+    total_growth = safe_div((current['mrr'] - first['mrr']), first['mrr']) * 100
     print(f"  Total MRR Growth:   {total_growth:+.1f}%")
     print(f"  Starting MRR:       ${first['mrr']:,.2f} ({first['year_month']})")
     print(f"  Current MRR:        ${current['mrr']:,.2f} ({current['year_month']})")
@@ -273,7 +266,8 @@ def print_mrr_summary(mrr_df):
     total_actual = mrr_df['actual_revenue'].sum()
     print(f"  Total Expected (MRR): ${total_mrr:,.2f}")
     print(f"  Total Actual Revenue: ${total_actual:,.2f}")
-    print(f"  Revenue Realization:  {(total_actual / total_mrr * 100):.1f}%")
+    realization = safe_div(total_actual, total_mrr) * 100
+    print(f"  Revenue Realization:  {realization:.1f}%")
 
     # Monthly breakdown (last 12 months)
     print(f"\n📅 Last 12 Months MRR:")

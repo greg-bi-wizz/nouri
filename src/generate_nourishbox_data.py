@@ -157,8 +157,8 @@ def generate_plan_dimension():
             'plan_name': info['name'],
             'category': info['category'],
             'monthly_price': info['price'],
-            'meals_per_week': info.get('meals_per_week'),
-            'items_per_month': info.get('items_per_month')
+            'meals_per_week': info.get('meals_per_week', -1),
+            'items_per_month': info.get('items_per_month', -1)
         })
     return pd.DataFrame(plan_rows)
 

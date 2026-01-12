@@ -191,7 +191,7 @@ python sync_to_supabase.py
 ```sql
 -- Check customer count
 SELECT COUNT(*) as total_customers FROM customers;
--- Should return: 2,500
+-- Should return: 4,015
 
 -- Check total revenue
 SELECT
@@ -199,7 +199,7 @@ SELECT
   SUM(order_total) as total_revenue,
   AVG(order_total) as avg_order_value
 FROM orders;
--- Should return: 32,514 orders, ~$2.2M revenue
+-- Should return: ~72,799 orders, ~$5.11M revenue
 
 -- Check active subscriptions
 SELECT
@@ -207,7 +207,7 @@ SELECT
   COUNT(*) as count
 FROM subscriptions
 GROUP BY status;
--- Should show: active: 1,776, cancelled: 724, upgraded: 201
+-- Should show roughly: active ~2,103; cancelled ~1,912; upgraded ~280 (ranges depend on random seed)
 
 -- Top customers by revenue
 SELECT
@@ -256,15 +256,18 @@ LIMIT 10;
      - ☑ customers
      - ☑ customer_preferences
      - ☑ subscriptions
+       - ☑ subscription_monthly
      - ☑ orders
      - ☑ order_items
      - ☑ churn_events
      - ☑ reviews
      - ☑ marketing_campaigns
      - ☑ product_catalog
+       - ☑ dim_plan
+       - ☑ dim_date
    - Click "Load"
 
-6. **Wait for import** (may take 1-2 minutes for 485K records)
+6. **Wait for import** (may take 1-2 minutes for ~1.2M rows total)
 
 7. **Done!** ✅
 
@@ -286,13 +289,21 @@ After loading data, set up these relationships:
 customers[customer_id] → subscriptions[customer_id]
 customers[customer_id] → orders[customer_id]
 customers[customer_id] → customer_preferences[customer_id]
+customers[customer_id] → churn_events[customer_id]
+customers[customer_id] → reviews[customer_id]
+customers[customer_id] → subscription_monthly[customer_id]
 
 subscriptions[subscription_id] → orders[subscription_id]
 subscriptions[subscription_id] → reviews[subscription_id]
 subscriptions[subscription_id] → churn_events[subscription_id]
+subscriptions[subscription_id] → subscription_monthly[subscription_id]
 
 orders[order_id] → order_items[order_id]
 orders[order_id] → reviews[order_id]
+dim_plan[plan_key] → subscriptions[plan_type]
+dim_plan[plan_key] → orders[plan_type_at_order]
+
+dim_date[date_key] → orders[order_date_key]
 ```
 
 3. **Verify relationships**:
@@ -308,7 +319,7 @@ orders[order_id] → reviews[order_id]
 1. **Add a Card visual**:
    - Drag `orders[order_total]` to the card
    - Change to **Sum**
-   - Should show: **$2,224,429.86**
+   - Should show: **≈$5,113,660** (will vary slightly with randomness)
 
 2. **Add a Line chart**:
    - X-axis: `orders[order_date]` (by Month)

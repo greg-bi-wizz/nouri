@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
   "name": "980b8ca7353353e1c49e",
   "position": {
-    "x": 10,
-    "y": 0,
+    "x": 9.6703296703296715,
+    "y": 15.824175824175825,
     "z": 0,
-    "height": 280,
-    "width": 280,
+    "height": 280.43956043956047,
+    "width": 280.43956043956047,
     "tabOrder": 0
   },
   "visual": {
@@ -58,5 +58,42 @@
       }
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "57b233640d776065d21c",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "orders"
+              }
+            },
+            "Property": "delivery_status"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "1fe37c4727c66d12de9b",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "orders"
+                  }
+                },
+                "Property": "order_id"
+              }
+            },
+            "Function": 5
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

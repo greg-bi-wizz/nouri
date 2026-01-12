@@ -23,11 +23,6 @@ relationship f6e14d22-9b2d-4b8e-987d-986ef6134e9f
 	fromColumn: reviews.review_date
 	toColumn: LocalDateTable_34a63248-034d-4158-9df6-ef6f4cfb3f72.Date
 
-relationship 1b087d3b-f148-4211-8dfe-5b831c609e46
-	joinOnDateBehavior: datePartOnly
-	fromColumn: subscriptions.start_date
-	toColumn: LocalDateTable_2c5330d7-9652-4a3a-8b18-cb760f42647e.Date
-
 relationship 9d606c70-5b43-4305-9164-f040ed801998
 	joinOnDateBehavior: datePartOnly
 	fromColumn: subscriptions.end_date
@@ -44,6 +39,7 @@ relationship AutoDetected_abd1d6d0-f53c-4bc7-8691-1c635d907a0c
 	toColumn: orders.order_id
 
 relationship AutoDetected_c04b5f5c-1878-4b43-9416-d88b989dde42
+	isActive: false
 	fromColumn: orders.subscription_id
 	toColumn: subscriptions.subscription_id
 
@@ -104,10 +100,15 @@ relationship 2bd4b6a6-3066-2d68-79ea-619132369f8b
 	toColumn: dim_calendar.Date
 
 relationship DateBridge_to_Subscriptions
+	isActive: false
 	fromColumn: subscription_dateBridge.subscription_id
 	toColumn: subscriptions.subscription_id
 
 relationship DateBridge_to_Calendar
 	fromColumn: subscription_dateBridge.Date
+	toColumn: dim_calendar.Date
+
+relationship dc4310fc-c24a-acdd-b7f1-245273a9bd52
+	fromColumn: subscriptions.start_date
 	toColumn: dim_calendar.Date
 

@@ -1,0 +1,41 @@
+{
+  "name": "NourishBox Clean",
+  "dataColors": ["#4CAF50", "#E91E63", "#FF9800", "#607D8B", "#2196F3", "#9C27B0"],
+  "background": "#FFFFFF",
+  "foreground": "#1F2A33",
+  "tableAccent": "#4CAF50",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "titleText": [{"fontSize": 16, "fontFamily": "Segoe UI", "fontWeight": "600", "color": "#1F2A33"}],
+        "labelColor": [{"color": "#34454F"}],
+        "dataLabel": [{"color": "#34454F", "fontSize": 13, "fontFamily": "Segoe UI"}],
+        "subTitleText": [{"fontSize": 13, "fontFamily": "Segoe UI", "color": "#51626F"}],
+        "legend": [{"fontSize": 12, "fontFamily": "Segoe UI", "titleFontSize": 12, "titleFontFamily": "Segoe UI", "labelColor": "#34454F"}],
+        "categoryLabels": [{"fontSize": 12, "fontFamily": "Segoe UI", "color": "#34454F"}],
+        "valueDecimal": [{"fontSize": 13}]
+      }
+    },
+    "card": {
+      "*": {
+        "title": [{"fontSize": 13, "fontFamily": "Segoe UI", "fontWeight": "600", "color": "#51626F"}],
+        "labels": [{"color": "#1F2A33", "fontSize": 20, "fontFamily": "Segoe UI", "fontWeight": "600"}],
+        "background": [{"color": "#FFFFFF", "transparency": 0}],
+        "border": [{"color": "#E0E6EA", "weight": 1}]
+      }
+    },
+    "slicer": {
+      "*": {
+        "header": [{"fontSize": 13, "fontFamily": "Segoe UI", "fontWeight": "600", "color": "#1F2A33"}],
+        "items": [{"fontSize": 12, "fontFamily": "Segoe UI", "color": "#34454F"}],
+        "background": [{"color": "#FFFFFF", "transparency": 0}],
+        "outline": [{"color": "#E0E6EA", "weight": 1}]
+      }
+    }
+  },
+  "textClasses": {
+    "title": {"color": "#1F2A33", "fontSize": 16, "fontFamily": "Segoe UI", "fontWeight": "600"},
+    "label": {"color": "#34454F", "fontSize": 12, "fontFamily": "Segoe UI"},
+    "callout": {"color": "#1F2A33", "fontSize": 20, "fontFamily": "Segoe UI", "fontWeight": "600"}
+  }
+}

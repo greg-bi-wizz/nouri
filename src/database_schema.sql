@@ -22,6 +22,9 @@ DROP TABLE IF EXISTS customer_preferences CASCADE;
 DROP TABLE IF EXISTS customers CASCADE;
 DROP TABLE IF EXISTS marketing_campaigns CASCADE;
 DROP TABLE IF EXISTS product_catalog CASCADE;
+DROP TABLE IF EXISTS subscription_monthly CASCADE;
+DROP TABLE IF EXISTS dim_date CASCADE;
+DROP TABLE IF EXISTS dim_plan CASCADE;
 
 -- ============================================================================
 -- CUSTOMER TABLES
@@ -63,6 +66,32 @@ CREATE TABLE customer_preferences (
         REFERENCES customers(customer_id) ON DELETE CASCADE
 );
 
+-- Plan dimension
+CREATE TABLE dim_plan (
+    plan_key VARCHAR(50) PRIMARY KEY,
+    plan_name VARCHAR(100) NOT NULL,
+    category VARCHAR(20) NOT NULL,
+    monthly_price DECIMAL(10, 2) NOT NULL,
+    meals_per_week INTEGER,
+    items_per_month INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Date dimension
+CREATE TABLE dim_date (
+    date_key INTEGER PRIMARY KEY,
+    calendar_date DATE NOT NULL UNIQUE,
+    year INTEGER NOT NULL,
+    quarter INTEGER NOT NULL,
+    month INTEGER NOT NULL,
+    day INTEGER NOT NULL,
+    day_of_week INTEGER NOT NULL,
+    month_name VARCHAR(20) NOT NULL,
+    year_month VARCHAR(7) NOT NULL,
+    is_weekend BOOLEAN DEFAULT FALSE,
+    season VARCHAR(10)
+);
+
 -- ============================================================================
 -- SUBSCRIPTION TABLES
 -- ============================================================================
@@ -84,7 +113,27 @@ CREATE TABLE subscriptions (
 
     CONSTRAINT fk_customer_sub FOREIGN KEY (customer_id)
         REFERENCES customers(customer_id) ON DELETE CASCADE,
+    CONSTRAINT fk_plan_sub FOREIGN KEY (plan_type)
+        REFERENCES dim_plan(plan_key),
     CONSTRAINT chk_end_date CHECK (end_date IS NULL OR end_date >= start_date)
+);
+
+-- Subscription monthly snapshots for MRR/NRR analysis
+CREATE TABLE subscription_monthly (
+    snapshot_id VARCHAR(20) PRIMARY KEY,
+    subscription_id VARCHAR(20) NOT NULL,
+    customer_id VARCHAR(20) NOT NULL,
+    plan_type VARCHAR(50) NOT NULL,
+    plan_name VARCHAR(100) NOT NULL,
+    month_start DATE NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    mrr DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_snapshot_sub FOREIGN KEY (subscription_id)
+        REFERENCES subscriptions(subscription_id) ON DELETE CASCADE,
+    CONSTRAINT fk_snapshot_customer FOREIGN KEY (customer_id)
+        REFERENCES customers(customer_id) ON DELETE CASCADE
 );
 
 -- Churn events for cancelled subscriptions
@@ -123,13 +172,23 @@ CREATE TABLE orders (
     delivery_address_zip VARCHAR(20),
     shipping_cost DECIMAL(10, 2) DEFAULT 0.00 CHECK (shipping_cost >= 0),
     discount_applied DECIMAL(10, 2) DEFAULT 0.00 CHECK (discount_applied >= 0),
+    plan_type_at_order VARCHAR(50),
+    plan_price_at_order DECIMAL(10, 2),
+    campaign_id VARCHAR(20),
     year_month VARCHAR(7) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    order_date_key INTEGER,
 
     CONSTRAINT fk_order_sub FOREIGN KEY (subscription_id)
         REFERENCES subscriptions(subscription_id) ON DELETE CASCADE,
     CONSTRAINT fk_order_customer FOREIGN KEY (customer_id)
         REFERENCES customers(customer_id) ON DELETE CASCADE,
+    CONSTRAINT fk_order_plan FOREIGN KEY (plan_type_at_order)
+        REFERENCES dim_plan(plan_key),
+    CONSTRAINT fk_order_campaign FOREIGN KEY (campaign_id)
+        REFERENCES marketing_campaigns(campaign_id),
+    CONSTRAINT fk_order_date FOREIGN KEY (order_date_key)
+        REFERENCES dim_date(date_key),
     CONSTRAINT chk_delivery_date CHECK (delivery_date IS NULL OR delivery_date >= order_date)
 );
 
@@ -152,18 +211,23 @@ CREATE TABLE product_catalog (
 CREATE TABLE order_items (
     item_id VARCHAR(20) PRIMARY KEY,
     order_id VARCHAR(20) NOT NULL,
+    product_id VARCHAR(20),
     product_type VARCHAR(20) NOT NULL CHECK (product_type IN ('meal', 'beauty')),
     product_name VARCHAR(200) NOT NULL,
     product_category VARCHAR(50) NOT NULL,
     quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
     unit_cost DECIMAL(10, 2) NOT NULL CHECK (unit_cost > 0),
+    line_price DECIMAL(10, 2) NOT NULL CHECK (line_price >= 0),
+    line_discount DECIMAL(10, 2) DEFAULT 0.00 CHECK (line_discount >= 0),
     calories INTEGER CHECK (calories IS NULL OR calories > 0),
     retail_value DECIMAL(10, 2) CHECK (retail_value IS NULL OR retail_value > 0),
     tags TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_item_order FOREIGN KEY (order_id)
-        REFERENCES orders(order_id) ON DELETE CASCADE
+        REFERENCES orders(order_id) ON DELETE CASCADE,
+    CONSTRAINT fk_item_product FOREIGN KEY (product_id)
+        REFERENCES product_catalog(product_id) ON DELETE SET NULL
 );
 
 -- ============================================================================
@@ -233,6 +297,9 @@ CREATE INDEX idx_customers_registration_date ON customers(registration_date);
 CREATE INDEX idx_customers_acquisition_channel ON customers(acquisition_channel);
 CREATE INDEX idx_customers_referred_by ON customers(referred_by_customer_id);
 
+-- Plan indexes
+CREATE INDEX idx_dim_plan_category ON dim_plan(category);
+
 -- Subscription indexes
 CREATE INDEX idx_subscriptions_customer ON subscriptions(customer_id);
 CREATE INDEX idx_subscriptions_status ON subscriptions(status);
@@ -243,13 +310,22 @@ CREATE INDEX idx_subscriptions_dates ON subscriptions(start_date, end_date);
 CREATE INDEX idx_orders_customer ON orders(customer_id);
 CREATE INDEX idx_orders_subscription ON orders(subscription_id);
 CREATE INDEX idx_orders_date ON orders(order_date);
+CREATE INDEX idx_orders_date_key ON orders(order_date_key);
 CREATE INDEX idx_orders_year_month ON orders(year_month);
 CREATE INDEX idx_orders_delivery_status ON orders(delivery_status);
+CREATE INDEX idx_orders_campaign ON orders(campaign_id);
 
 -- Order items indexes
 CREATE INDEX idx_order_items_order ON order_items(order_id);
 CREATE INDEX idx_order_items_product_type ON order_items(product_type);
 CREATE INDEX idx_order_items_product_name ON order_items(product_name);
+CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX idx_order_items_line_price ON order_items(line_price);
+
+-- Subscription monthly indexes
+CREATE INDEX idx_snapshot_subscription ON subscription_monthly(subscription_id);
+CREATE INDEX idx_snapshot_month ON subscription_monthly(month_start);
+CREATE INDEX idx_snapshot_status ON subscription_monthly(status);
 
 -- Review indexes
 CREATE INDEX idx_reviews_customer ON reviews(customer_id);
@@ -359,12 +435,15 @@ ORDER BY churn_count DESC;
 COMMENT ON TABLE customers IS 'Customer master table with demographics and acquisition data';
 COMMENT ON TABLE customer_preferences IS 'Customer dietary and beauty product preferences';
 COMMENT ON TABLE subscriptions IS 'Subscription plans and history for each customer';
+COMMENT ON TABLE subscription_monthly IS 'Monthly subscription snapshots for MRR/NRR tracking';
 COMMENT ON TABLE orders IS 'Monthly box orders and delivery information';
 COMMENT ON TABLE order_items IS 'Individual products included in each order';
 COMMENT ON TABLE reviews IS 'Customer reviews and ratings for delivered orders';
 COMMENT ON TABLE churn_events IS 'Cancellation events and retention attempts';
 COMMENT ON TABLE marketing_campaigns IS 'Marketing campaign performance metrics';
 COMMENT ON TABLE product_catalog IS 'Available meal and beauty products';
+COMMENT ON TABLE dim_plan IS 'Subscription plan dimension';
+COMMENT ON TABLE dim_date IS 'Calendar dimension for analytics';
 
 -- ============================================================================
 -- Sample Queries

@@ -1,0 +1,184 @@
+erDiagram
+    dim_plan {
+        varchar plan_key PK
+        varchar plan_name
+        varchar category
+        decimal monthly_price
+        int meals_per_week
+        int items_per_month
+    }
+
+    dim_date {
+        int date_key PK
+        date calendar_date
+        int year
+        int quarter
+        int month
+        int day
+        int day_of_week
+        varchar month_name
+        varchar year_month
+        boolean is_weekend
+        varchar season
+    }
+
+    customers {
+        varchar customer_id PK
+        varchar first_name
+        varchar last_name
+        varchar email
+        date registration_date
+        varchar acquisition_channel
+        int age
+        varchar gender
+        varchar zip_code
+        varchar city
+        varchar state
+        varchar referred_by_customer_id
+    }
+
+    customer_preferences {
+        varchar customer_id PK
+        text dietary_preferences
+        text beauty_preferences
+        varchar skin_type
+        text allergies
+        varchar preferred_meal_time
+        int household_size
+    }
+
+    marketing_campaigns {
+        varchar campaign_id PK
+        varchar campaign_name
+        varchar campaign_type
+        date start_date
+        date end_date
+        decimal budget
+        varchar target_audience
+        varchar offer_type
+        int offer_value
+        int impressions
+        int clicks
+        int conversions
+        decimal ctr
+        decimal conversion_rate
+        decimal cost_per_acquisition
+    }
+
+    subscriptions {
+        varchar subscription_id PK
+        varchar customer_id
+        varchar plan_type
+        varchar plan_name
+        decimal monthly_price
+        date start_date
+        date end_date
+        varchar status
+        varchar billing_cycle
+        boolean auto_renew
+    }
+
+    subscription_monthly {
+        varchar snapshot_id PK
+        varchar subscription_id
+        varchar customer_id
+        varchar plan_type
+        varchar plan_name
+        date month_start
+        varchar status
+        decimal mrr
+    }
+
+    churn_events {
+        varchar churn_id PK
+        varchar subscription_id
+        varchar customer_id
+        date churn_date
+        int subscription_length_days
+        varchar churn_reason
+        boolean attempted_retention
+        boolean retention_offer_accepted
+        boolean feedback_provided
+        text feedback_text
+    }
+
+    product_catalog {
+        varchar product_id PK
+        varchar product_type
+        varchar product_name
+        varchar category
+        decimal cost_to_company
+        int calories
+        decimal retail_value
+        text tags
+        boolean active
+    }
+
+    orders {
+        varchar order_id PK
+        varchar subscription_id
+        varchar customer_id
+        date order_date
+        date delivery_date
+        decimal order_total
+        varchar delivery_status
+        varchar delivery_address_zip
+        decimal shipping_cost
+        decimal discount_applied
+        varchar plan_type_at_order
+        decimal plan_price_at_order
+        varchar campaign_id
+        varchar year_month
+        int order_date_key
+    }
+
+    order_items {
+        varchar item_id PK
+        varchar order_id
+        varchar product_id
+        varchar product_type
+        varchar product_name
+        varchar product_category
+        int quantity
+        decimal unit_cost
+        decimal line_price
+        decimal line_discount
+        int calories
+        decimal retail_value
+        text tags
+    }
+
+    reviews {
+        varchar review_id PK
+        varchar order_id
+        varchar customer_id
+        varchar subscription_id
+        date review_date
+        int rating
+        varchar review_title
+        text review_text
+        boolean would_recommend
+        int meal_quality_rating
+        int beauty_quality_rating
+        int delivery_rating
+        int value_rating
+    }
+
+    dim_plan ||--o{ subscriptions : "plan_type"
+    dim_plan ||--o{ orders : "plan_type_at_order"
+    dim_date ||--o{ orders : "order_date_key"
+    customers ||--o{ subscriptions : "customer_id"
+    customers ||--o{ customer_preferences : "customer_id"
+    customers ||--o{ orders : "customer_id"
+    customers ||--o{ reviews : "customer_id"
+    customers ||--o{ churn_events : "customer_id"
+    customers ||--o{ subscription_monthly : "customer_id"
+    customers ||--o{ customers : "referrer"
+    subscriptions ||--o{ orders : "subscription_id"
+    subscriptions ||--o{ churn_events : "subscription_id"
+    subscriptions ||--o{ reviews : "subscription_id"
+    subscriptions ||--o{ subscription_monthly : "subscription_id"
+    orders ||--o{ order_items : "order_id"
+    orders ||--o{ reviews : "order_id"
+    marketing_campaigns ||--o{ orders : "campaign_id"
+    product_catalog ||--o{ order_items : "product_id"

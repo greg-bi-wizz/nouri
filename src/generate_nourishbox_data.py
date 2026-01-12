@@ -29,6 +29,10 @@ END_DATE = datetime(2025, 12, 31)
 NUM_CUSTOMERS = 4015
 OUTPUT_DIR = 'data/nourishbox'
 
+# Pricing assumptions for synthetic monetization
+MEAL_PRICE_MARKUP = 1.8   # multiplier on meal unit cost
+BEAUTY_PRICE_MARKUP = 1.0 # use provided retail_value directly
+
 # Business constants
 SUBSCRIPTION_PLANS = {
     'meal_basic': {'name': 'Meal Basic', 'price': 49.99, 'meals_per_week': 3, 'category': 'meals'},
@@ -142,6 +146,46 @@ def get_seasonal_signup_multiplier(date):
         12: 0.6   # December - holiday season
     }
     return multipliers.get(month, 1.0)
+
+
+def generate_plan_dimension():
+    """Create a plan dimension from SUBSCRIPTION_PLANS"""
+    plan_rows = []
+    for plan_key, info in SUBSCRIPTION_PLANS.items():
+        plan_rows.append({
+            'plan_key': plan_key,
+            'plan_name': info['name'],
+            'category': info['category'],
+            'monthly_price': info['price'],
+            'meals_per_week': info.get('meals_per_week'),
+            'items_per_month': info.get('items_per_month')
+        })
+    return pd.DataFrame(plan_rows)
+
+
+def generate_date_dimension(start_date, end_date):
+    """Generate a simple date dimension for time intelligence"""
+    rows = []
+    current = start_date
+    while current <= end_date:
+        rows.append({
+            'date_key': int(current.strftime('%Y%m%d')),
+            'date': current.strftime('%Y-%m-%d'),
+            'year': current.year,
+            'quarter': (current.month - 1) // 3 + 1,
+            'month': current.month,
+            'day': current.day,
+            'day_of_week': current.weekday() + 1,  # Monday=1
+            'month_name': current.strftime('%B'),
+            'year_month': current.strftime('%Y-%m'),
+            'is_weekend': current.weekday() >= 5,
+            'season': ('winter' if current.month in [12, 1, 2] else
+                       'spring' if current.month in [3, 4, 5] else
+                       'summer' if current.month in [6, 7, 8] else
+                       'fall')
+        })
+        current += timedelta(days=1)
+    return pd.DataFrame(rows)
 
 def generate_customers(num_customers):
     """Generate customer data with demographics and acquisition info"""
@@ -375,6 +419,46 @@ def generate_subscriptions(customers_df):
     print(f"  - New Year resolution churns (2-3 months): {new_year_churns}")
     return df
 
+
+def generate_subscription_monthly(subscriptions_df):
+    """Create a monthly subscription snapshot for MRR-style metrics"""
+    rows = []
+    snapshot_id = 1
+
+    for _, sub in subscriptions_df.iterrows():
+        start = datetime.strptime(sub['start_date'], '%Y-%m-%d').replace(day=1)
+        sub_end = datetime.strptime(sub['end_date'], '%Y-%m-%d') if sub['end_date'] else END_DATE
+        cursor = start
+
+        while cursor <= sub_end and cursor <= END_DATE:
+            status_at_month_start = sub['status']
+            if sub['status'] == 'cancelled' and cursor > sub_end:
+                break
+            if sub['status'] == 'upgraded' and cursor >= sub_end:
+                # upgraded subscriptions stop at the upgrade month boundary
+                break
+
+            rows.append({
+                'snapshot_id': f'SNAP{str(snapshot_id).zfill(7)}',
+                'subscription_id': sub['subscription_id'],
+                'customer_id': sub['customer_id'],
+                'plan_type': sub['plan_type'],
+                'plan_name': sub['plan_name'],
+                'month_start': cursor.strftime('%Y-%m-%d'),
+                'status': status_at_month_start,
+                'mrr': sub['monthly_price'] if status_at_month_start in ['active', 'upgraded'] else 0
+            })
+            snapshot_id += 1
+
+            if cursor.month == 12:
+                cursor = cursor.replace(year=cursor.year + 1, month=1, day=1)
+            else:
+                cursor = cursor.replace(month=cursor.month + 1, day=1)
+
+    df = pd.DataFrame(rows)
+    print(f"✓ Generated {len(df)} subscription monthly snapshots")
+    return df
+
 def get_seasonal_skip_probability(date):
     """
     Return probability of skipping order based on seasonality:
@@ -399,7 +483,7 @@ def get_seasonal_skip_probability(date):
     }
     return skip_probs.get(month, 0.05)
 
-def generate_orders(subscriptions_df):
+def generate_orders(subscriptions_df, campaigns_df):
     """Generate monthly order records for active subscription periods"""
     orders = []
     order_id_counter = 1
@@ -431,17 +515,30 @@ def generate_orders(subscriptions_df):
                 else:
                     delivery_status = 'pending'
 
+                discount_amount = round(random.uniform(0, 15), 2) if random.random() < 0.15 else 0.00
+                shipping_cost = 0.00 if subscription['monthly_price'] > 50 else 5.99
+                order_total = max(0, subscription['monthly_price'] - discount_amount + shipping_cost)
+
+                # Occasional campaign attribution
+                campaign_id = None
+                if len(campaigns_df) > 0 and random.random() < 0.35:
+                    campaign_id = campaigns_df.sample(1).iloc[0]['campaign_id']
+
                 order = {
                     'order_id': f'ORD{str(order_id_counter).zfill(7)}',
                     'subscription_id': subscription['subscription_id'],
                     'customer_id': subscription['customer_id'],
                     'order_date': order_date.strftime('%Y-%m-%d'),
                     'delivery_date': delivery_date.strftime('%Y-%m-%d') if delivery_status != 'cancelled' else None,
-                    'order_total': subscription['monthly_price'],
+                    'order_total': order_total,
                     'delivery_status': delivery_status,
                     'delivery_address_zip': None,  # Would be linked to customer in real system
-                    'shipping_cost': 0.00 if subscription['monthly_price'] > 50 else 5.99,
-                    'discount_applied': round(random.uniform(0, 15), 2) if random.random() < 0.15 else 0.00,
+                    'shipping_cost': shipping_cost,
+                    'discount_applied': discount_amount,
+                    'plan_type_at_order': subscription['plan_type'],
+                    'plan_price_at_order': subscription['monthly_price'],
+                    'campaign_id': campaign_id,
+                    'order_date_key': int(order_date.strftime('%Y%m%d')),
                     'year_month': order_date.strftime('%Y-%m')
                 }
                 orders.append(order)
@@ -473,10 +570,15 @@ def generate_orders(subscriptions_df):
     print(f"  - Skipped (regular): {seasonal_skips['regular']}")
     return df
 
-def generate_order_items(orders_df, subscriptions_df, preferences_df):
+def generate_order_items(orders_df, subscriptions_df, preferences_df, products_df):
     """Generate individual product items for each order"""
     order_items = []
     item_id_counter = 1
+
+    # Convert products_df to lists of dicts for easier filtering/sampling
+    all_products = products_df.to_dict('records')
+    meal_products = [p for p in all_products if p['product_type'] == 'meal']
+    beauty_products = [p for p in all_products if p['product_type'] == 'beauty']
 
     # Create lookup dictionaries
     sub_to_plan = subscriptions_df.set_index('subscription_id')['plan_type'].to_dict()
@@ -493,60 +595,86 @@ def generate_order_items(orders_df, subscriptions_df, preferences_df):
         # Get customer dietary preferences
         dietary_prefs = cust_to_prefs.get(order['customer_id'], 'none').split(', ')
 
+        selected_items = []
+
         # Generate meal items
         if plan_category in ['meals', 'combo']:
             num_meals = plan_info.get('meals_per_week', 0) * 4  # 4 weeks per month
 
             # Filter meals based on dietary preferences
-            available_meals = MEAL_PRODUCTS.copy()
+            available_meals = meal_products.copy()
             if 'none' not in dietary_prefs:
                 available_meals = [
-                    m for m in MEAL_PRODUCTS
+                    m for m in meal_products
                     if any(pref in m['tags'] for pref in dietary_prefs)
                 ]
 
             if not available_meals:
-                available_meals = MEAL_PRODUCTS
+                available_meals = meal_products
 
             # Select meals
             selected_meals = random.choices(available_meals, k=num_meals)
 
             for meal in selected_meals:
-                item = {
-                    'item_id': f'ITEM{str(item_id_counter).zfill(8)}',
-                    'order_id': order['order_id'],
+                selected_items.append({
+                    'product_id': meal['product_id'],
                     'product_type': 'meal',
-                    'product_name': meal['name'],
+                    'product_name': meal['product_name'],
                     'product_category': meal['category'],
                     'quantity': 1,
-                    'unit_cost': meal['cost'],
+                    'unit_cost': meal['cost_to_company'],
                     'calories': meal['calories'],
-                    'tags': ', '.join(meal['tags'])
-                }
-                order_items.append(item)
-                item_id_counter += 1
+                    'retail_value': None,
+                    'tags': meal['tags']
+                })
 
         # Generate beauty items
         if plan_category in ['beauty', 'combo']:
             num_beauty = plan_info.get('items_per_month', 0)
 
             # Select variety of beauty products
-            selected_beauty = random.sample(BEAUTY_PRODUCTS, min(num_beauty, len(BEAUTY_PRODUCTS)))
+            selected_beauty = random.sample(beauty_products, min(num_beauty, len(beauty_products)))
 
             for beauty in selected_beauty:
-                item = {
-                    'item_id': f'ITEM{str(item_id_counter).zfill(8)}',
-                    'order_id': order['order_id'],
+                selected_items.append({
+                    'product_id': beauty['product_id'],
                     'product_type': 'beauty',
-                    'product_name': beauty['name'],
+                    'product_name': beauty['product_name'],
                     'product_category': beauty['category'],
                     'quantity': 1,
-                    'unit_cost': beauty['cost'],
+                    'unit_cost': beauty['cost_to_company'],
+                    'calories': None,
                     'retail_value': beauty['retail_value'],
-                    'tags': ', '.join(beauty['tags'])
-                }
-                order_items.append(item)
-                item_id_counter += 1
+                    'tags': beauty['tags']
+                })
+
+        # Allocate discounts equally across items
+        discount_per_item = 0.0
+        if selected_items:
+            discount_per_item = round(order['discount_applied'] / len(selected_items), 2) if order['discount_applied'] else 0.0
+
+        for item in selected_items:
+            if item['product_type'] == 'meal':
+                line_price = round(item['unit_cost'] * MEAL_PRICE_MARKUP, 2)
+            else:
+                line_price = round(item['retail_value'], 2) if item['retail_value'] else round(item['unit_cost'] * (1 + BEAUTY_PRICE_MARKUP), 2)
+
+            order_items.append({
+                'item_id': f'ITEM{str(item_id_counter).zfill(8)}',
+                'order_id': order['order_id'],
+                'product_id': item['product_id'],
+                'product_type': item['product_type'],
+                'product_name': item['product_name'],
+                'product_category': item['product_category'],
+                'quantity': item['quantity'],
+                'unit_cost': item['unit_cost'],
+                'line_price': line_price,
+                'line_discount': discount_per_item,
+                'calories': item['calories'],
+                'retail_value': item['retail_value'],
+                'tags': item['tags']
+            })
+            item_id_counter += 1
 
     df = pd.DataFrame(order_items)
     print(f"✓ Generated {len(df)} order line items")
@@ -730,35 +858,45 @@ def generate_all_data():
     create_output_directory()
 
     # Generate all datasets
-    print("\n[1/10] Generating customers...")
+    print("\n[1/13] Generating customers...")
     customers_df = generate_customers(NUM_CUSTOMERS)
 
-    print("\n[2/10] Generating customer preferences...")
+    print("\n[2/13] Generating customer preferences...")
     preferences_df = generate_customer_preferences(customers_df)
 
-    print("\n[3/10] Generating subscriptions...")
+    print("\n[3/13] Generating subscriptions...")
     subscriptions_df = generate_subscriptions(customers_df)
 
-    print("\n[4/10] Generating orders...")
-    orders_df = generate_orders(subscriptions_df)
-
-    print("\n[5/10] Generating order items...")
-    order_items_df = generate_order_items(orders_df, subscriptions_df, preferences_df)
-
-    print("\n[6/10] Generating churn events...")
-    churn_df = generate_churn_events(subscriptions_df)
-
-    print("\n[7/10] Generating reviews...")
-    reviews_df = generate_reviews(orders_df, subscriptions_df)
-
-    print("\n[8/10] Generating marketing campaigns...")
+    print("\n[4/13] Generating marketing campaigns...")
     campaigns_df = generate_marketing_campaigns()
 
-    print("\n[9/10] Generating product catalog...")
+    print("\n[5/13] Generating orders...")
+    orders_df = generate_orders(subscriptions_df, campaigns_df)
+
+    print("\n[6/13] Generating product catalog...")
     products_df = generate_product_catalog()
 
+    print("\n[7/13] Generating order items...")
+    order_items_df = generate_order_items(orders_df, subscriptions_df, preferences_df, products_df)
+
+    print("\n[8/13] Generating churn events...")
+    churn_df = generate_churn_events(subscriptions_df)
+
+    print("\n[9/13] Generating reviews...")
+    reviews_df = generate_reviews(orders_df, subscriptions_df)
+
+    print("\n[10/13] Generating plan dimension...")
+    plan_dim_df = generate_plan_dimension()
+
+    print("\n[11/13] Generating date dimension...")
+    date_dim_df = generate_date_dimension(START_DATE, END_DATE)
+
+    print("\n[12/13] Generating subscription monthly snapshots...")
+    subscription_monthly_df = generate_subscription_monthly(subscriptions_df)
+
+
     # Save all datasets
-    print("\n[10/10] Saving datasets to CSV files...")
+    print("\n[13/13] Saving datasets to CSV files...")
     customers_df.to_csv(f'{OUTPUT_DIR}/customers.csv', index=False)
     preferences_df.to_csv(f'{OUTPUT_DIR}/customer_preferences.csv', index=False)
     subscriptions_df.to_csv(f'{OUTPUT_DIR}/subscriptions.csv', index=False)
@@ -768,6 +906,9 @@ def generate_all_data():
     reviews_df.to_csv(f'{OUTPUT_DIR}/reviews.csv', index=False)
     campaigns_df.to_csv(f'{OUTPUT_DIR}/marketing_campaigns.csv', index=False)
     products_df.to_csv(f'{OUTPUT_DIR}/product_catalog.csv', index=False)
+    plan_dim_df.to_csv(f'{OUTPUT_DIR}/plan_dim.csv', index=False)
+    date_dim_df.to_csv(f'{OUTPUT_DIR}/date_dim.csv', index=False)
+    subscription_monthly_df.to_csv(f'{OUTPUT_DIR}/subscription_monthly.csv', index=False)
 
     print("\n" + "="*60)
     print("✅ Data Generation Complete!")
@@ -783,6 +924,9 @@ def generate_all_data():
     print(f"  7. reviews.csv ({len(reviews_df)} rows)")
     print(f"  8. marketing_campaigns.csv ({len(campaigns_df)} rows)")
     print(f"  9. product_catalog.csv ({len(products_df)} rows)")
+    print(f" 10. plan_dim.csv ({len(plan_dim_df)} rows)")
+    print(f" 11. date_dim.csv ({len(date_dim_df)} rows)")
+    print(f" 12. subscription_monthly.csv ({len(subscription_monthly_df)} rows)")
 
     # Summary statistics
     print("\n" + "="*60)

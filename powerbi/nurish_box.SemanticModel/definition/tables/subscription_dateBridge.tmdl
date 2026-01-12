@@ -3,58 +3,91 @@ table subscription_dateBridge
 
 	column subscription_id
 		lineageTag: 6e7da169-26e3-4826-bb42-0e03c22f7d6c
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[subscription_id]
 
+		annotation SummarizationSetBy = Automatic
+
 	column customer_id
 		lineageTag: 23efc244-791b-4a05-ae84-c5a8f5f64a04
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[customer_id]
 
+		annotation SummarizationSetBy = Automatic
+
 	column plan_type
 		lineageTag: b8d189f7-4b37-45d5-92cb-18c42598907f
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[plan_type]
 
+		annotation SummarizationSetBy = Automatic
+
 	column plan_name
 		lineageTag: 4ec6dd73-46e7-432e-a662-1d12ee874011
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[plan_name]
 
+		annotation SummarizationSetBy = Automatic
+
 	column monthly_price
 		lineageTag: e7c94261-1a4c-4f62-b88b-53c5da6e4f1a
+		summarizeBy: sum
 		isNameInferred
 		sourceColumn: subscriptions[monthly_price]
 
+		annotation SummarizationSetBy = Automatic
+
 	column start_date
 		lineageTag: acbfd3ce-09ec-4676-b236-be2ae35f9021
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[start_date]
 
+		annotation SummarizationSetBy = Automatic
+
 	column end_date
 		lineageTag: 979ce7a8-84b8-42d0-abfa-bb7300dd630e
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[end_date]
 
+		annotation SummarizationSetBy = Automatic
+
 	column status
 		lineageTag: c3c9d74d-ab9d-40d6-88b5-b0b54f5c7840
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[status]
 
+		annotation SummarizationSetBy = Automatic
+
 	column billing_cycle
 		lineageTag: 00a054f5-7fd2-4c3f-9301-cfe69b793a6b
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[billing_cycle]
 
+		annotation SummarizationSetBy = Automatic
+
 	column auto_renew
 		lineageTag: 0ec0b6b8-4de0-4481-97ad-fe6a21035e2c
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: subscriptions[auto_renew]
 
+		annotation SummarizationSetBy = Automatic
+
 	column Date
 		lineageTag: f9276c77-2945-481a-bc61-432e98aef5a6
+		summarizeBy: none
 		isNameInferred
 		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
 
 	partition subscription_dateBridge = calculated
 		mode: import

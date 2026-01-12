@@ -1,0 +1,216 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "3fe19576d2002d9e004b",
+  "position": {
+    "x": 569.12087912087918,
+    "y": 25.824175824175825,
+    "z": 1002,
+    "height": 280.43956043956047,
+    "width": 696.26373626373629,
+    "tabOrder": 1002
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Columns": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "subscriptions"
+                    }
+                  },
+                  "Property": "plan_type"
+                }
+              },
+              "queryRef": "subscriptions.plan_type",
+              "nativeQueryRef": "plan_type",
+              "active": true
+            }
+          ]
+        },
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "subscriptions"
+                    }
+                  },
+                  "Property": "start_date"
+                }
+              },
+              "queryRef": "subscriptions.start_date.Variation.Date Hierarchy.Year",
+              "nativeQueryRef": "start_date Year",
+              "active": true
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "subscriptions"
+                        }
+                      },
+                      "Property": "subscription_id"
+                    }
+                  },
+                  "Function": 5
+                }
+              },
+              "queryRef": "Min(subscriptions.subscription_id)",
+              "nativeQueryRef": "Count of subscription_id"
+            }
+          ]
+        }
+      }
+    },
+    "expansionStates": [
+      {
+        "roles": [
+          "Rows"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "subscriptions.start_date.Variation.Date Hierarchy.Year"
+            ],
+            "isCollapsed": true,
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "LocalDateTable_2c5330d7-9652-4a3a-8b18-cb760f42647e"
+                    }
+                  },
+                  "Property": "Year"
+                }
+              }
+            ],
+            "isPinned": true
+          }
+        ],
+        "root": {
+          "children": [
+            {
+              "identityValues": [
+                {
+                  "Literal": {
+                    "Value": "2025L"
+                  }
+                }
+              ],
+              "isToggled": true
+            }
+          ]
+        }
+      }
+    ],
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "bc5b4d037d5406784b48",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "subscriptions"
+              }
+            },
+            "Property": "start_date"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "dff12fb4ec6774090a59",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "subscriptions"
+              }
+            },
+            "Property": "start_date"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "7d74c0c768ac0083eba1",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "subscriptions"
+              }
+            },
+            "Property": "start_date"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "1ea89235b04890796163",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "subscriptions"
+              }
+            },
+            "Property": "start_date"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "47c061a611600de56ac5",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "subscriptions"
+              }
+            },
+            "Property": "plan_type"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "f6f13487a814bd0909c5",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "subscriptions"
+                  }
+                },
+                "Property": "subscription_id"
+              }
+            },
+            "Function": 5
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

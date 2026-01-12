@@ -174,14 +174,14 @@
     {
       "ordinal": 1,
       "scrollPosition": {
-        "x": 321.25,
-        "y": 6.25
+        "x": 25.625,
+        "y": 0
       },
       "nodes": [
         {
           "location": {
-            "x": 0,
-            "y": 90
+            "x": 1671.25,
+            "y": 0
           },
           "nodeIndex": "dim_calendar",
           "nodeLineageTag": "f8b3805d-47fb-4665-ad47-ae09c49097cf",
@@ -219,8 +219,8 @@
         },
         {
           "location": {
-            "x": 1399.25,
-            "y": 815
+            "x": 1416.75,
+            "y": 897.5
           },
           "nodeIndex": "churn_events",
           "nodeLineageTag": "3ec5f84d-45dd-4bbe-94c1-6d77084d6a71",
@@ -232,10 +232,11 @@
         },
         {
           "location": {
-            "x": 419,
-            "y": 551.25
+            "x": 1490.25,
+            "y": 472.5
           },
           "nodeIndex": "subscription_dateBridge",
+          "nodeLineageTag": "966c0395-4708-42ea-b211-dc55ffa57e60",
           "size": {
             "height": 388,
             "width": 234
@@ -257,8 +258,8 @@
         },
         {
           "location": {
-            "x": 544.25,
-            "y": 363.75
+            "x": 541.75,
+            "y": 350
           },
           "nodeIndex": "order_items",
           "nodeLineageTag": "6fdafe20-a52b-4a9c-90a5-60c84eaddfea",

@@ -60,11 +60,6 @@ table subscriptions
 		summarizeBy: none
 		sourceColumn: start_date
 
-		variation Variation
-			isDefault
-			relationship: 1b087d3b-f148-4211-8dfe-5b831c609e46
-			defaultHierarchy: LocalDateTable_2c5330d7-9652-4a3a-8b18-cb760f42647e.'Date Hierarchy'
-
 		changedProperty = IsHidden
 
 		annotation SummarizationSetBy = Automatic

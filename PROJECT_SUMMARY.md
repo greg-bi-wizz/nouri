@@ -17,16 +17,19 @@ my_portfolio_p4_aigen_data/
 ├── example_analysis.py               # Sample analysis code
 ├── database_schema.sql               # SQL database schema
 │
-└── data/nourishbox/                  # Generated datasets (9 CSV files)
-    ├── customers.csv                 # 2,500 customers
-    ├── customer_preferences.csv      # Dietary & beauty preferences
-    ├── subscriptions.csv             # 2,701 subscription records
-    ├── orders.csv                    # 32,514 monthly orders
-    ├── order_items.csv               # 444,979 product line items
-    ├── churn_events.csv              # 724 cancellations
-    ├── reviews.csv                   # 12,252 customer reviews
-    ├── marketing_campaigns.csv       # 70 campaigns
-    └── product_catalog.csv           # 37 products
+└── data/nourishbox/                  # Generated datasets (12 CSV files)
+   ├── customers.csv                 # 4,015 customers
+   ├── customer_preferences.csv      # Dietary & beauty preferences
+   ├── subscriptions.csv             # 4,301 subscription records
+   ├── subscription_monthly.csv      # 79,544 subscription-month snapshots
+   ├── orders.csv                    # 72,799 monthly orders
+   ├── order_items.csv               # 1,011,604 product line items (priced)
+   ├── churn_events.csv              # 1,912 cancellations
+   ├── reviews.csv                   # 27,389 customer reviews
+   ├── marketing_campaigns.csv       # 130 campaigns
+   ├── product_catalog.csv           # 37 products
+   ├── plan_dim.csv                  # 6 plan dimension rows
+   └── date_dim.csv                  # 1,826 calendar rows (2021-2025)
 ```
 
 ## 🚀 Quick Start (3 Steps)
@@ -113,13 +116,13 @@ python example_analysis.py
 
 | Metric | Value | Use Case |
 |--------|-------|----------|
-| **Total Revenue** | $2.2M | Revenue analysis |
-| **Active Subscriptions** | 1,776 | Retention tracking |
-| **Churn Rate** | 29% | Churn prediction |
-| **Avg Order Value** | $68.41 | Customer value |
-| **Avg Rating** | 4.14/5.0 | Quality metrics |
-| **Customers** | 2,500 | Cohort analysis |
-| **Orders** | 32,514 | Trend analysis |
+| **Total Revenue** | $5.11M | Revenue analysis |
+| **Active Subscriptions** | 2,103 | Retention tracking |
+| **Churn Rate** | 47.6% | Churn prediction |
+| **Avg Order Value** | $70.24 | Customer value |
+| **Avg Rating** | 4.15/5.0 | Quality metrics |
+| **Customers** | 4,015 | Cohort analysis |
+| **Orders** | 72,799 | Trend analysis |
 
 ## 🎨 Visualization Tips
 

@@ -25,19 +25,22 @@ A comprehensive synthetic dataset for a subscription box service combining healt
 | **customers.csv** | 4,015 | Customer demographics and acquisition data |
 | **customer_preferences.csv** | 4,015 | Dietary restrictions, beauty preferences, allergies |
 | **subscriptions.csv** | 4,301 | Subscription history including upgrades/cancellations |
-| **orders.csv** | 72,877 | Monthly box deliveries with seasonal patterns |
-| **order_items.csv** | 1,012,999 | Individual products in each box |
+| **subscription_monthly.csv** | 79,544 | Monthly subscription snapshots for MRR/NRR |
+| **orders.csv** | 72,799 | Monthly box deliveries with seasonal patterns |
+| **order_items.csv** | 1,011,604 | Individual products in each box (priced lines) |
 | **churn_events.csv** | 1,912 | Cancellation details and reasons |
-| **reviews.csv** | 29,151 | Customer ratings and feedback |
-| **marketing_campaigns.csv** | 117 | Campaign performance metrics |
+| **reviews.csv** | 27,389 | Customer ratings and feedback |
+| **marketing_campaigns.csv** | 130 | Campaign performance metrics |
 | **product_catalog.csv** | 37 | Available meal and beauty products |
+| **plan_dim.csv** | 6 | Plan dimension (lookup) |
+| **date_dim.csv** | 1,826 | Calendar dimension (2021-01-01 → 2025-12-31) |
 
 ### Key Business Metrics
 
-- **Total Revenue**: $5.05M+ over 5 years (2021-2025)
+- **Total Revenue**: $5.11M over 5 years (2021-2025)
 - **Active Subscriptions**: 2,103 (52% of total customers)
 - **Churn Rate**: 47.6% (influenced by New Year's resolution effect)
-- **Average Order Value**: $69.34
+- **Average Order Value**: $70.24
 - **Average Review Rating**: 4.15/5.0
 - **Review Response Rate**: 40%
 - **New Year Signups**: 1,424 customers (35% of total)
@@ -222,6 +225,18 @@ OUTPUT_DIR = 'data/nourishbox'       # Output directory
 | billing_cycle | string | Billing frequency (monthly) |
 | auto_renew | boolean | Auto-renewal enabled |
 
+### subscription_monthly.csv
+| Column | Type | Description |
+|--------|------|-------------|
+| snapshot_id | string | Snapshot row identifier |
+| subscription_id | string | Subscription identifier |
+| customer_id | string | Customer identifier |
+| plan_type | string | Plan key at snapshot |
+| plan_name | string | Plan name at snapshot |
+| month_start | date | First day of the snapshot month |
+| status | string | Status at month start |
+| mrr | float | Monthly recurring revenue for that subscription month |
+
 **Plan Types**:
 - `meal_basic`: 3 meals/week @ $49.99
 - `meal_plus`: 5 meals/week @ $79.99
@@ -242,6 +257,10 @@ OUTPUT_DIR = 'data/nourishbox'       # Output directory
 | delivery_status | string | delivered, delayed, cancelled, pending |
 | shipping_cost | float | Shipping fee (free for orders >$50) |
 | discount_applied | float | Discount amount |
+| plan_type_at_order | string | Plan key at time of order |
+| plan_price_at_order | float | List price of plan at time of order |
+| campaign_id | string | Attributed campaign (nullable) |
+| order_date_key | integer | Date key linking to date_dim |
 | year_month | string | Order year-month (YYYY-MM) |
 
 ### order_items.csv
@@ -254,6 +273,8 @@ OUTPUT_DIR = 'data/nourishbox'       # Output directory
 | product_category | string | Product subcategory |
 | quantity | integer | Quantity (typically 1) |
 | unit_cost | float | Cost per unit to company |
+| line_price | float | Billed price for the line |
+| line_discount | float | Allocated discount amount for the line |
 | calories | integer | Calories (meals only) |
 | retail_value | float | Retail value (beauty products only) |
 | tags | string | Product tags/attributes |
@@ -322,6 +343,31 @@ OUTPUT_DIR = 'data/nourishbox'       # Output directory
 | retail_value | float | Retail value (beauty only) |
 | tags | string | Product attributes |
 | active | boolean | Currently available |
+
+### plan_dim.csv
+| Column | Type | Description |
+|--------|------|-------------|
+| plan_key | string | Plan key (matches plan_type) |
+| plan_name | string | Human-readable plan name |
+| category | string | meals, beauty, combo |
+| monthly_price | float | Standard monthly list price |
+| meals_per_week | integer | Meals per week (meal/combo plans) |
+| items_per_month | integer | Beauty items per month (beauty/combo plans) |
+
+### date_dim.csv
+| Column | Type | Description |
+|--------|------|-------------|
+| date_key | integer | Surrogate key YYYYMMDD |
+| calendar_date | date | Calendar date |
+| year | integer | Calendar year |
+| quarter | integer | Calendar quarter |
+| month | integer | Month number |
+| day | integer | Day of month |
+| day_of_week | integer | ISO weekday (Mon=1) |
+| month_name | string | Month name |
+| year_month | string | YYYY-MM |
+| is_weekend | boolean | Weekend flag |
+| season | string | winter/spring/summer/fall |
 
 ## 🎨 Visualization Ideas
 

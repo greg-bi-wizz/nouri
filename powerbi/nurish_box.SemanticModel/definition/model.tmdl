@@ -27,7 +27,6 @@ ref table LocalDateTable_dc797ca6-c370-4bb0-9b7c-670d5842e5ca
 ref table reviews
 ref table LocalDateTable_34a63248-034d-4158-9df6-ef6f4cfb3f72
 ref table subscriptions
-ref table LocalDateTable_2c5330d7-9652-4a3a-8b18-cb760f42647e
 ref table LocalDateTable_1907b4ac-0e1c-484c-98e1-427537dfca22
 ref table _Core_measures
 ref table dim_calendar

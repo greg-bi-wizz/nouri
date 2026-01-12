@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "f00b217c12ac91a61c0a",
+  "position": {
+    "x": 616.19256017505472,
+    "y": 77.02407002188184,
+    "z": 2000,
+    "height": 123.23851203501093,
+    "width": 180.65645514223195,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Core_measures"
+                    }
+                  },
+                  "Property": "Customer Lifetime Value"
+                }
+              },
+              "queryRef": "_Core_measures.Customer Lifetime Value",
+              "nativeQueryRef": "Customer Lifetime Value"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Core_measures"
+                  }
+                },
+                "Property": "Customer Lifetime Value"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1000D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

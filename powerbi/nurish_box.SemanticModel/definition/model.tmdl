@@ -1,0 +1,37 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["orders","dim_product","order_items","churn_events","customer_preferences","customers","marketing_campaigns","reviews","subscriptions","_Core_measures"]
+
+annotation PBI_ProTooling = ["MCP-PBIModeling","DaxQueryView_Desktop","DevMode"]
+
+ref table orders
+ref table DateTableTemplate_ff974dc3-e457-4747-ad30-0aada9b1345c
+ref table LocalDateTable_14b600c4-fe05-4c33-90f8-d365c47b2872
+ref table LocalDateTable_f5649631-05c8-41b7-b777-1440cf9612e9
+ref table dim_product
+ref table order_items
+ref table churn_events
+ref table customer_preferences
+ref table customers
+ref table marketing_campaigns
+ref table LocalDateTable_1409fb6e-9ed1-42c6-98ef-64b635b984aa
+ref table LocalDateTable_dc797ca6-c370-4bb0-9b7c-670d5842e5ca
+ref table reviews
+ref table LocalDateTable_34a63248-034d-4158-9df6-ef6f4cfb3f72
+ref table subscriptions
+ref table LocalDateTable_2c5330d7-9652-4a3a-8b18-cb760f42647e
+ref table LocalDateTable_1907b4ac-0e1c-484c-98e1-427537dfca22
+ref table _Core_measures
+ref table dim_calendar
+ref table subscription_dateBridge
+
+ref cultureInfo en-US
+

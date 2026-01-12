@@ -1,0 +1,13 @@
+// Select "Run" to try this sample DAX query.
+EVALUATE
+ADDCOLUMNS(
+  VALUES(dim_calendar[Date]),
+  "Cumulative_Customers", 
+  CALCULATE(
+    DISTINCTCOUNT(customers[customer_id]),
+    FILTER(customers, customers[registration_date] <= [Date])
+  ),
+  "Min_Reg_Date", CALCULATE(MIN(customers[registration_date])),
+  "Max_Reg_Date", CALCULATE(MAX(customers[registration_date]))
+)
+ORDER BY [Date]

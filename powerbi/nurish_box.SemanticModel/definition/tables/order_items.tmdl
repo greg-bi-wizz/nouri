@@ -1,0 +1,122 @@
+table order_items
+	lineageTag: 6fdafe20-a52b-4a9c-90a5-60c84eaddfea
+
+	column item_id
+		dataType: string
+		lineageTag: 6f0fa95a-7d64-446d-9d2e-a930a8ef1323
+		summarizeBy: none
+		sourceColumn: item_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: string
+		lineageTag: c3be4ea2-06c3-41b9-80cb-45cd9048d63c
+		summarizeBy: none
+		sourceColumn: order_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_type
+		dataType: string
+		lineageTag: fe72edd1-dd40-42ca-aae1-e25914a4045c
+		summarizeBy: none
+		sourceColumn: product_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: e748f5f8-5319-471d-a956-e1201f52abea
+		summarizeBy: none
+		sourceColumn: product_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_category
+		dataType: string
+		lineageTag: 83b60d5a-d9d8-4d45-947a-af5f7dd52ec0
+		summarizeBy: none
+		sourceColumn: product_category
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: a04e440e-73b7-426b-85f0-483735cd0986
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost
+		dataType: double
+		lineageTag: f96215c4-75a7-4df6-b580-a05489956cc8
+		summarizeBy: sum
+		sourceColumn: unit_cost
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column calories
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d73a3d8-8065-4b70-94b0-3bc880afe357
+		summarizeBy: sum
+		sourceColumn: calories
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 7feeb27d-d433-42e2-8c79-cd8fcd84e195
+		summarizeBy: none
+		sourceColumn: tags
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column retail_value
+		dataType: int64
+		formatString: 0
+		lineageTag: 30fbcd0c-dfed-4d11-8f0c-8fd3adaf20a3
+		summarizeBy: sum
+		sourceColumn: retail_value
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition order_items = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\order_items.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"item_id", type text}, {"order_id", type text}, {"product_type", type text}, {"product_name", type text}, {"product_category", type text}, {"quantity", Int64.Type}, {"unit_cost", type number}, {"calories", Int64.Type}, {"tags", type text}, {"retail_value", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

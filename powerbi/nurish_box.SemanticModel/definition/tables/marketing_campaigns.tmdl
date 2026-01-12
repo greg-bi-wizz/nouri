@@ -1,0 +1,195 @@
+table marketing_campaigns
+	lineageTag: 0fb01184-2a80-4f2f-99d6-dd20ff999b59
+
+	column campaign_id
+		dataType: string
+		lineageTag: 17397dd7-61a8-4e72-9799-9f35a79f34dd
+		summarizeBy: none
+		sourceColumn: campaign_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column campaign_name
+		dataType: string
+		lineageTag: 2be6aadc-3a0c-40ee-ae95-bcbf315da7bb
+		summarizeBy: none
+		sourceColumn: campaign_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column campaign_type
+		dataType: string
+		lineageTag: 74b8306f-5a6b-49c4-8ed9-469e31162f0f
+		summarizeBy: none
+		sourceColumn: campaign_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 0fe89842-1a15-4983-a214-3be443a383a8
+		summarizeBy: none
+		sourceColumn: start_date
+
+		variation Variation
+			isDefault
+			relationship: a1675582-05f5-4fb6-91cb-ac71f655a1a5
+			defaultHierarchy: LocalDateTable_1409fb6e-9ed1-42c6-98ef-64b635b984aa.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 1580dd0e-9464-47ae-af3a-149de96077ec
+		summarizeBy: none
+		sourceColumn: end_date
+
+		variation Variation
+			isDefault
+			relationship: dc75faf4-e8e9-40bf-b63f-e137fddaf005
+			defaultHierarchy: LocalDateTable_dc797ca6-c370-4bb0-9b7c-670d5842e5ca.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column budget
+		dataType: double
+		lineageTag: fc42f87a-a844-41ff-b3be-c61a238dcec0
+		summarizeBy: sum
+		sourceColumn: budget
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column target_audience
+		dataType: string
+		lineageTag: ce5123c5-6db0-4a8d-ac6c-c53679bd6495
+		summarizeBy: none
+		sourceColumn: target_audience
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column offer_type
+		dataType: string
+		lineageTag: 7e2189e3-08f6-4ec8-acb6-ecfb3d265079
+		summarizeBy: none
+		sourceColumn: offer_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column offer_value
+		dataType: int64
+		formatString: 0
+		lineageTag: 133617be-165b-4928-880e-c0ab36a32752
+		summarizeBy: sum
+		sourceColumn: offer_value
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column impressions
+		dataType: int64
+		formatString: 0
+		lineageTag: 9b1fca1e-566f-4b95-b718-299b6bce38ae
+		summarizeBy: sum
+		sourceColumn: impressions
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column clicks
+		dataType: int64
+		formatString: 0
+		lineageTag: e20ca95d-e126-4328-8e5e-71d0d228c374
+		summarizeBy: sum
+		sourceColumn: clicks
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column conversions
+		dataType: int64
+		formatString: 0
+		lineageTag: a4b31064-16c8-4ecb-8fb8-b6da66a451e9
+		summarizeBy: sum
+		sourceColumn: conversions
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ctr
+		dataType: double
+		lineageTag: cd1f30bf-436a-4751-8aaf-4a45192c6a9a
+		summarizeBy: sum
+		sourceColumn: ctr
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column conversion_rate
+		dataType: double
+		lineageTag: f2c2a23d-ff40-4e29-a744-aaba56b0d621
+		summarizeBy: sum
+		sourceColumn: conversion_rate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cost_per_acquisition
+		dataType: double
+		lineageTag: 0ec524a1-5eec-4043-b047-994a12dbe704
+		summarizeBy: sum
+		sourceColumn: cost_per_acquisition
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition marketing_campaigns = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\marketing_campaigns.csv"),[Delimiter=",", Columns=15, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"campaign_id", type text}, {"campaign_name", type text}, {"campaign_type", type text}, {"start_date", type date}, {"end_date", type date}, {"budget", type number}, {"target_audience", type text}, {"offer_type", type text}, {"offer_value", Int64.Type}, {"impressions", Int64.Type}, {"clicks", Int64.Type}, {"conversions", Int64.Type}, {"ctr", type number}, {"conversion_rate", type number}, {"cost_per_acquisition", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

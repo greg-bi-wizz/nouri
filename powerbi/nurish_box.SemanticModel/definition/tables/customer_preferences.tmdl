@@ -1,0 +1,88 @@
+table customer_preferences
+	lineageTag: 5f33f974-34f5-4832-896b-33ed1e42ae9c
+
+	column customer_id
+		dataType: string
+		lineageTag: b0005422-3a79-47fc-b6e1-18c4c2414b0e
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column dietary_preferences
+		dataType: string
+		lineageTag: 7b3375f7-e6a7-4919-9681-2c3eee732086
+		summarizeBy: none
+		sourceColumn: dietary_preferences
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column beauty_preferences
+		dataType: string
+		lineageTag: c222da7e-f975-4361-afdc-0ac05b5ebaf6
+		summarizeBy: none
+		sourceColumn: beauty_preferences
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column skin_type
+		dataType: string
+		lineageTag: f7b38f88-6d21-46d5-b17f-141b236fe998
+		summarizeBy: none
+		sourceColumn: skin_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column allergies
+		dataType: string
+		lineageTag: 421119cb-a78d-4c9b-b910-192f867eec01
+		summarizeBy: none
+		sourceColumn: allergies
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column preferred_meal_time
+		dataType: string
+		lineageTag: 718d322f-a655-4ba7-8874-d0383613b9ad
+		summarizeBy: none
+		sourceColumn: preferred_meal_time
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column household_size
+		dataType: int64
+		formatString: 0
+		lineageTag: cb10efca-56e0-4d3f-93c1-ca917beda26c
+		summarizeBy: sum
+		sourceColumn: household_size
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition customer_preferences = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\customer_preferences.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"customer_id", type text}, {"dietary_preferences", type text}, {"beauty_preferences", type text}, {"skin_type", type text}, {"allergies", type text}, {"preferred_meal_time", type text}, {"household_size", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

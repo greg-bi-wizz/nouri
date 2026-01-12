@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "nurish_box"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "0d1f47c4-bbb3-4ae1-9172-221d08fe7de3"
+  }
+}

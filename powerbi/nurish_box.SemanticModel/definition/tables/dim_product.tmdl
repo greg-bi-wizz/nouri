@@ -1,0 +1,114 @@
+table dim_product
+	lineageTag: bbbcd49f-2066-4b93-8add-e0d5f3159878
+
+	column product_id
+		dataType: string
+		lineageTag: 1164f3cc-c971-4b52-99bb-f396b9ddb846
+		summarizeBy: none
+		sourceColumn: product_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_type
+		dataType: string
+		lineageTag: 254b5c1c-3724-40e6-95d0-5f6675e3e10a
+		summarizeBy: none
+		sourceColumn: product_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: ea31d535-248a-4268-9052-fcd6ed1daddb
+		summarizeBy: none
+		sourceColumn: product_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 0c5ebf08-342d-4326-ad2d-f93223f01cce
+		summarizeBy: none
+		sourceColumn: category
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_to_company
+		dataType: double
+		lineageTag: ab3d9efe-1443-40cd-adee-834aa2f78c83
+		summarizeBy: none
+		sourceColumn: cost_to_company
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column calories
+		dataType: int64
+		formatString: 0
+		lineageTag: 37beb6b7-8c50-47bb-bd33-1dbf92b12e7b
+		summarizeBy: none
+		sourceColumn: calories
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 3596fde8-c106-4a32-a3b1-f514ca0edf5f
+		summarizeBy: none
+		sourceColumn: tags
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column active
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: cf3d953c-3424-4e64-881c-6f94e1bd0f9f
+		summarizeBy: none
+		sourceColumn: active
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column retail_value
+		dataType: int64
+		formatString: 0
+		lineageTag: ed963bfc-02fc-465e-acde-f9324546245f
+		summarizeBy: none
+		sourceColumn: retail_value
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_product = m
+		mode: import
+		source =
+				let
+				    Source = Folder.Files("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox"),
+				    #"Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\_product_catalog csv" = Source{[#"Folder Path"="Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\",Name="product_catalog.csv"]}[Content],
+				    #"Imported CSV" = Csv.Document(#"Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\_product_catalog csv",[Delimiter=",", Columns=9, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"product_id", type text}, {"product_type", type text}, {"product_name", type text}, {"category", type text}, {"cost_to_company", type number}, {"calories", Int64.Type}, {"tags", type text}, {"active", type logical}, {"retail_value", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

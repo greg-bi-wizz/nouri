@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "nurish_box"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "feb0076c-4f0f-4200-a31d-84cd9a54caa3"
+  }
+}

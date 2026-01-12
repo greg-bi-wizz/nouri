@@ -1,0 +1,152 @@
+table orders
+	lineageTag: 361bdc4c-9d6b-4004-b1e1-3c4e9746ee4c
+
+	column order_id
+		dataType: string
+		lineageTag: 401c146b-49e4-424c-bf72-b596301bfe31
+		summarizeBy: none
+		sourceColumn: order_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_id
+		dataType: string
+		lineageTag: 45bc8800-9373-4e37-9e0e-e5d848a62940
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: ddb93049-7cb5-42d6-9fe7-9f9383994cd4
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 809651a9-8410-464e-a04c-be03a29dd561
+		summarizeBy: none
+		sourceColumn: order_date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column delivery_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 97eecceb-96cd-41ce-af4c-cf0b6ec9faf1
+		summarizeBy: none
+		sourceColumn: delivery_date
+
+		variation Variation
+			isDefault
+			relationship: 922ee7fc-5858-42b7-b092-704aed1569c2
+			defaultHierarchy: LocalDateTable_14b600c4-fe05-4c33-90f8-d365c47b2872.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column order_total
+		dataType: double
+		lineageTag: fd168817-489a-4d35-9928-c7080f15dce2
+		summarizeBy: sum
+		sourceColumn: order_total
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column delivery_status
+		dataType: string
+		lineageTag: d85f6cb4-93d5-4d48-86e3-6ccfee9f305e
+		summarizeBy: none
+		sourceColumn: delivery_status
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_address_zip
+		dataType: string
+		lineageTag: 491e4eda-4fa2-47ce-97fb-065ff65a7700
+		summarizeBy: none
+		sourceColumn: delivery_address_zip
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column shipping_cost
+		dataType: double
+		lineageTag: 7fdade0e-976d-4c85-9ca3-27cd8839e3d4
+		summarizeBy: sum
+		sourceColumn: shipping_cost
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column discount_applied
+		dataType: double
+		lineageTag: 642e5733-df6b-41f7-9e35-b90c3918fb48
+		summarizeBy: sum
+		sourceColumn: discount_applied
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column year_month
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: bf174b83-3079-4067-bb13-a9ba07808866
+		summarizeBy: none
+		sourceColumn: year_month
+
+		variation Variation
+			isDefault
+			relationship: f8706aff-ed09-440b-939b-c3854c88e4fc
+			defaultHierarchy: LocalDateTable_f5649631-05c8-41b7-b777-1440cf9612e9.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition orders = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\orders.csv"),[Delimiter=",", Columns=11, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"order_id", type text}, {"subscription_id", type text}, {"customer_id", type text}, {"order_date", type date}, {"delivery_date", type date}, {"order_total", type number}, {"delivery_status", type text}, {"delivery_address_zip", type text}, {"shipping_cost", type number}, {"discount_applied", type number}, {"year_month", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

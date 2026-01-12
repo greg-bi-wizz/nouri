@@ -1,0 +1,161 @@
+table reviews
+	lineageTag: 2aa85970-48bf-4c4f-a2c4-2c78ab147d9f
+
+	column review_id
+		dataType: string
+		lineageTag: 049b759f-6eb4-4335-9fcd-ff41e0424038
+		summarizeBy: none
+		sourceColumn: review_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: string
+		lineageTag: 58d2af79-15fb-4c24-888b-2d62a2fc7c13
+		summarizeBy: none
+		sourceColumn: order_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: b7947ef7-0cfe-4900-9e69-978bc2013dc0
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_id
+		dataType: string
+		lineageTag: 5d8a1040-7e96-4ca9-a195-48c4d62fee85
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 46e830bd-5264-4b45-ae03-68fc8168fca0
+		summarizeBy: none
+		sourceColumn: review_date
+
+		variation Variation
+			isDefault
+			relationship: f6e14d22-9b2d-4b8e-987d-986ef6134e9f
+			defaultHierarchy: LocalDateTable_34a63248-034d-4158-9df6-ef6f4cfb3f72.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column rating
+		dataType: int64
+		formatString: 0
+		lineageTag: a125b05f-4117-49ad-9ec4-3144ad7714df
+		summarizeBy: sum
+		sourceColumn: rating
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_title
+		dataType: string
+		lineageTag: d7b69d97-d781-4eaa-b975-ba04118db597
+		summarizeBy: none
+		sourceColumn: review_title
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_text
+		dataType: string
+		lineageTag: b0ea5951-d834-4749-a9d7-382ba1d8dea4
+		summarizeBy: none
+		sourceColumn: review_text
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column would_recommend
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 4dcc7e4f-39e7-41d7-b2ac-1bcd8b865b28
+		summarizeBy: none
+		sourceColumn: would_recommend
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column meal_quality_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 76c87d80-d3ca-4e6a-9c83-3c20e20cc5d0
+		summarizeBy: sum
+		sourceColumn: meal_quality_rating
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column beauty_quality_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 7042bb17-ddcf-4e4e-bf4b-352ae0eec4e0
+		summarizeBy: sum
+		sourceColumn: beauty_quality_rating
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: e6b42123-55ad-414e-b65b-6f1abdb9a0d9
+		summarizeBy: sum
+		sourceColumn: delivery_rating
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column value_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: be1f7703-22df-4b32-aa2b-60ac05daef21
+		summarizeBy: sum
+		sourceColumn: value_rating
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition reviews = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\reviews.csv"),[Delimiter=",", Columns=13, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"review_id", type text}, {"order_id", type text}, {"customer_id", type text}, {"subscription_id", type text}, {"review_date", type date}, {"rating", Int64.Type}, {"review_title", type text}, {"review_text", type text}, {"would_recommend", type logical}, {"meal_quality_rating", Int64.Type}, {"beauty_quality_rating", Int64.Type}, {"delivery_rating", Int64.Type}, {"value_rating", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

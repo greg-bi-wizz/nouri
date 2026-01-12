@@ -1,0 +1,154 @@
+table customers
+	lineageTag: 1c9fa12f-5d3a-4620-be33-3aedff11022b
+
+	column customer_id
+		dataType: string
+		lineageTag: e90e44f9-831b-45c6-9fb2-0dffcf729ca4
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_name
+		dataType: string
+		lineageTag: 891a1eb7-d7a6-48c2-993e-0d23c72a7e2c
+		summarizeBy: none
+		sourceColumn: first_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_name
+		dataType: string
+		lineageTag: 186638bd-0019-4816-b646-8d7022cc38fa
+		summarizeBy: none
+		sourceColumn: last_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column email
+		dataType: string
+		lineageTag: f48d9bb5-2fee-4ba2-9231-894092f1f98a
+		summarizeBy: none
+		sourceColumn: email
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column phone
+		dataType: string
+		lineageTag: f4a7a726-d7c8-4310-8b8e-609153afd6f0
+		summarizeBy: none
+		sourceColumn: phone
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column registration_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 9e1383be-2075-4adb-aeab-210084c1a43d
+		summarizeBy: none
+		sourceColumn: registration_date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column acquisition_channel
+		dataType: string
+		lineageTag: 2e26b0da-31f7-42e8-8462-2511b4ef5f9e
+		summarizeBy: none
+		sourceColumn: acquisition_channel
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column age
+		dataType: int64
+		formatString: 0
+		lineageTag: 8aa2f39b-4700-4014-9563-14855e9d299a
+		summarizeBy: sum
+		sourceColumn: age
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column gender
+		dataType: string
+		lineageTag: c5b7a468-c552-45f1-8d09-9c44ff08b78e
+		summarizeBy: none
+		sourceColumn: gender
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column zip_code
+		dataType: int64
+		formatString: 0
+		lineageTag: d0e2604a-af5e-4187-9205-0bfc4bdd3b6e
+		summarizeBy: sum
+		sourceColumn: zip_code
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		lineageTag: c5e448a7-e40b-4582-89a3-0b2c81755df5
+		summarizeBy: none
+		sourceColumn: city
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		lineageTag: 49ec358e-a24c-4e4b-a41d-ae03e5ded7f0
+		summarizeBy: none
+		sourceColumn: state
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column referred_by_customer_id
+		dataType: string
+		lineageTag: 5f62ef5f-ea4b-4926-ab5f-5e26371bac34
+		summarizeBy: none
+		sourceColumn: referred_by_customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition customers = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\customers.csv"),[Delimiter=",", Columns=13, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"customer_id", type text}, {"first_name", type text}, {"last_name", type text}, {"email", type text}, {"phone", type text}, {"registration_date", type date}, {"acquisition_channel", type text}, {"age", Int64.Type}, {"gender", type text}, {"zip_code", Int64.Type}, {"city", type text}, {"state", type text}, {"referred_by_customer_id", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

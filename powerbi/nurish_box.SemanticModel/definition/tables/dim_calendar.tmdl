@@ -1,0 +1,456 @@
+/// Calendar dimension table for time intelligence
+table dim_calendar
+	lineageTag: f8b3805d-47fb-4665-ad47-ae09c49097cf
+	dataCategory: Time
+
+	column Date
+		isKey
+		formatString: General Date
+		lineageTag: 21fb49aa-3afb-40ef-bcdc-48470541c335
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Calendar year
+	column Year = YEAR('dim_calendar'[Date])
+		dataType: int64
+		lineageTag: 9c4a5fc3-a9e1-4432-b0a3-47a30330f43d
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Calendar quarter (1-4)
+	column Quarter = QUARTER(dim_calendar[Date])
+		dataType: int64
+		lineageTag: 62d41b6d-a6f8-4b62-8c2a-4e043fa1b2f6
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Quarter name (Q1, Q2, Q3, Q4)
+	column QuarterName = "Q" & QUARTER(dim_calendar[Date])
+		dataType: string
+		lineageTag: 480e4794-5efd-458e-a494-a2872ed7b92f
+		summarizeBy: none
+		sortByColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Year and quarter (2022 Q1)
+	column YearQuarter = dim_calendar[Year] & " Q" & QUARTER(dim_calendar[Date])
+		dataType: string
+		lineageTag: 16863337-1234-4dba-a505-6a47effeda58
+		summarizeBy: none
+		sortByColumn: QuarterSort
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Month number (1-12)
+	column Month = MONTH(dim_calendar[Date])
+		dataType: int64
+		lineageTag: 829c4ae4-b327-4583-89f1-ea337a97a855
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Full month name
+	column MonthName = FORMAT(dim_calendar[Date], "MMMM")
+		dataType: string
+		lineageTag: e7b4388a-d926-4fb4-a850-1f6502805b76
+		summarizeBy: none
+		sortByColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Abbreviated month (Jan, Feb)
+	column MonthShort = FORMAT(dim_calendar[Date], "MMM")
+		dataType: string
+		lineageTag: bcaab703-8ad9-4cff-9ce0-e25981cbc817
+		summarizeBy: none
+		sortByColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Year-Month (2022-01)
+	column YearMonth = FORMAT(dim_calendar[Date], "YYYY-MM")
+		dataType: string
+		lineageTag: b1e76d39-b9c8-4cbf-864d-81a9005cae88
+		summarizeBy: none
+		sortByColumn: MonthYearSort
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Year Month (2022 Jan)
+	column YearMonthName = FORMAT(dim_calendar[Date], "YYYY MMM")
+		dataType: string
+		lineageTag: b34920d9-b184-4eec-8c0e-7d4dbb438a0a
+		summarizeBy: none
+		sortByColumn: MonthYearSort
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Day of month (1-31)
+	column Day = DAY(dim_calendar[Date])
+		dataType: int64
+		lineageTag: 4ca32df8-48d9-4442-a6b2-c9df6b4089e7
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Day of week (1=Monday, 7=Sunday)
+	column DayOfWeek = WEEKDAY(dim_calendar[Date], 2)
+		dataType: int64
+		lineageTag: 3258ad24-99b5-4888-94f5-d45ae41cf8f7
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Full day name (Monday, Tuesday)
+	column DayOfWeekName = FORMAT(dim_calendar[Date], "dddd")
+		dataType: string
+		lineageTag: 319aaf6c-6ceb-4272-8f72-2e088d8f0fe7
+		summarizeBy: none
+		sortByColumn: DayOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Abbreviated day (Mon, Tue)
+	column DayOfWeekShort = FORMAT(dim_calendar[Date], "ddd")
+		dataType: string
+		lineageTag: 3cfa2c02-b36f-48b2-9fd3-2b0ba867bb47
+		summarizeBy: none
+		sortByColumn: DayOfWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Day of year (1-365/366)
+	column DayOfYear = DATEDIFF(DATE(YEAR(dim_calendar[Date]), 1, 1), dim_calendar[Date], DAY) + 1
+		dataType: int64
+		lineageTag: 8ffa0ace-0835-4195-9cc0-9cb2d9b66773
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// ISO week number (1-53)
+	column WeekOfYear = WEEKNUM(dim_calendar[Date], 2)
+		dataType: int64
+		lineageTag: 79331efd-a52b-4856-90e9-666661ecd2ad
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if Saturday or Sunday
+	column IsWeekend = WEEKDAY(dim_calendar[Date], 2) >= 6
+		dataType: boolean
+		lineageTag: d0cb13a3-4bf9-44e0-a0de-509c97f963f9
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if Monday-Friday
+	column IsWeekday = WEEKDAY(dim_calendar[Date], 2) <= 5
+		dataType: boolean
+		lineageTag: bbf6d06d-5538-47ad-9367-ea503ea2c390
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Monday of the week
+	column StartOfWeek = dim_calendar[Date] - WEEKDAY(dim_calendar[Date], 2) + 1
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 1ef91869-3140-4faa-a1d7-3d80ae06fee7
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Sunday of the week
+	column EndOfWeek = dim_calendar[Date] - WEEKDAY(dim_calendar[Date], 2) + 7
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: bf13327d-095a-46a9-9544-3b8b270a67a0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// First day of month
+	column StartOfMonth = DATE(YEAR(dim_calendar[Date]), MONTH(dim_calendar[Date]), 1)
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: c63e6de7-0491-435e-901b-77becf1ff4f1
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Last day of month
+	column EndOfMonth = EOMONTH(dim_calendar[Date], 0)
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 0aa8019f-8036-45ae-bdfa-117681030350
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// First day of quarter
+	column StartOfQuarter = DATE(YEAR(dim_calendar[Date]), (QUARTER(dim_calendar[Date]) - 1) * 3 + 1, 1)
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 5d9752f8-d90b-47dc-8ef6-251be638f9b0
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Last day of quarter
+	column EndOfQuarter = EOMONTH(DATE(YEAR(dim_calendar[Date]), QUARTER(dim_calendar[Date]) * 3, 1), 0)
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: f46d1993-109e-401a-a6d9-01ea6addf16d
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// First day of year
+	column StartOfYear = DATE(YEAR(dim_calendar[Date]), 1, 1)
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 13bc783c-fede-482b-baed-2019a962dd65
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Last day of year
+	column EndOfYear = DATE(YEAR(dim_calendar[Date]), 12, 31)
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: e57b6f57-a59b-48e5-a2be-83573a3bf4eb
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Sort key for YearMonth (202201, 202202)
+	column MonthYearSort = YEAR(dim_calendar[Date]) * 100 + MONTH(dim_calendar[Date])
+		dataType: int64
+		isHidden
+		lineageTag: 83ba8226-224f-47c9-baab-4a55b07493d1
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Sort key for YearQuarter (20221, 20222)
+	column QuarterSort = YEAR(dim_calendar[Date]) * 10 + QUARTER(dim_calendar[Date])
+		dataType: int64
+		isHidden
+		lineageTag: d56bbdb7-cb93-44d5-b62b-b7211fb1cc07
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Sort key for year-week combinations
+	column YearWeekSort = YEAR(dim_calendar[Date]) * 100 + WEEKNUM(dim_calendar[Date], 2)
+		dataType: int64
+		isHidden
+		lineageTag: 0e878388-b3b9-4483-bb54-82b4a6a721db
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if date is in current year
+	column IsCurrentYear = YEAR(dim_calendar[Date]) = YEAR(TODAY())
+		dataType: boolean
+		lineageTag: 3a12f476-7c83-4186-ae10-8e54a5827f45
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if date is in current quarter
+	column IsCurrentQuarter = YEAR(dim_calendar[Date]) = YEAR(TODAY()) && QUARTER(dim_calendar[Date]) = QUARTER(TODAY())
+		dataType: boolean
+		lineageTag: 6ff2f488-9aa7-46dd-b54e-d95a23488025
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if date is in current month
+	column IsCurrentMonth = YEAR(dim_calendar[Date]) = YEAR(TODAY()) && MONTH(dim_calendar[Date]) = MONTH(TODAY())
+		dataType: boolean
+		lineageTag: 3f5949cc-ceb5-46be-b009-7646c0ca42af
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if date is in prior year
+	column IsPriorYear = YEAR(dim_calendar[Date]) = YEAR(TODAY()) - 1
+		dataType: boolean
+		lineageTag: 2e10f826-e2f3-45c9-8446-a0f1d4bb0d37
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if date is in prior month
+	column IsPriorMonth = EOMONTH(dim_calendar[Date], 0) = EOMONTH(TODAY(), -1)
+		dataType: boolean
+		lineageTag: 5d04cbc7-5454-4408-99b6-ba44cb19fd64
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if date is today
+	column IsToday = dim_calendar[Date] = TODAY()
+		dataType: boolean
+		lineageTag: 2173b0c2-2690-4fc9-adab-f3eb31e4b564
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Fiscal year (same as calendar year)
+	column FiscalYear = YEAR(dim_calendar[Date])
+		dataType: int64
+		lineageTag: b561163c-79d4-4ad2-adce-f341d4ed108e
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Fiscal quarter (same as calendar quarter)
+	column FiscalQuarter = QUARTER(dim_calendar[Date])
+		dataType: int64
+		lineageTag: 1befa602-8f63-4679-a0b8-74714c4bde82
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Fiscal month (same as calendar month)
+	column FiscalMonth = MONTH(dim_calendar[Date])
+		dataType: int64
+		lineageTag: 3982bce2-a170-499c-86cc-803b8c5fe5e5
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Number of days in the month
+	column DaysInMonth = DAY(EOMONTH(dim_calendar[Date], 0))
+		dataType: int64
+		lineageTag: daa9e21f-069b-43cc-8492-f499ede64f23
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Days in year (365 or 366 for leap year)
+	column DaysInYear = IF(MOD(YEAR(dim_calendar[Date]), 4) = 0 && (MOD(YEAR(dim_calendar[Date]), 100) <> 0 || MOD(YEAR(dim_calendar[Date]), 400) = 0), 366, 365)
+		dataType: int64
+		lineageTag: 0b65cf2e-8ce1-4ea6-a3b5-dae63e1ebaa2
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if leap year
+	column IsLeapYear = MOD(YEAR(dim_calendar[Date]), 4) = 0 && (MOD(YEAR(dim_calendar[Date]), 100) <> 0 || MOD(YEAR(dim_calendar[Date]), 400) = 0)
+		dataType: boolean
+		lineageTag: e8a05a08-e5bf-476b-ae66-b2f2acb214a9
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Week number within the month
+	column WeekOfMonth = WEEKNUM(dim_calendar[Date], 2) - WEEKNUM(DATE(YEAR(dim_calendar[Date]), MONTH(dim_calendar[Date]), 1), 2) + 1
+		dataType: int64
+		lineageTag: 2be3fc33-1c6a-4828-a4c8-d0b28ee85f30
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Day number within quarter (1-92)
+	column DayOfQuarter = DATEDIFF(DATE(YEAR(dim_calendar[Date]), (QUARTER(dim_calendar[Date]) - 1) * 3 + 1, 1), dim_calendar[Date], DAY) + 1
+		dataType: int64
+		lineageTag: 4c23a33e-16e0-4100-ab03-85d1a3235bf6
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Year and week (2022 W01)
+	column YearWeek = FORMAT(dim_calendar[Date], "YYYY") & " W" & FORMAT(WEEKNUM(dim_calendar[Date], 2), "00")
+		dataType: string
+		lineageTag: 1eac6e0d-0541-4788-a532-bf8c2e28974f
+		summarizeBy: none
+		sortByColumn: YearWeekSort
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Days from today (negative=future, positive=past)
+	column RelativeDays = DATEDIFF(TODAY(), dim_calendar[Date], DAY)
+		dataType: int64
+		lineageTag: 3b0f8f0f-c9ef-4660-a69e-5608153c5a81
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Months from current month
+	column RelativeMonths = DATEDIFF(DATE(YEAR(TODAY()), MONTH(TODAY()), 1), DATE(YEAR(dim_calendar[Date]), MONTH(dim_calendar[Date]), 1), MONTH)
+		dataType: int64
+		lineageTag: e708003a-3e7f-45da-87f1-cdfdc15444f1
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Quarters from current quarter
+	column RelativeQuarters = DATEDIFF(DATE(YEAR(TODAY()), (QUARTER(TODAY()) - 1) * 3 + 1, 1), DATE(YEAR(dim_calendar[Date]), (QUARTER(dim_calendar[Date]) - 1) * 3 + 1, 1), QUARTER)
+		dataType: int64
+		lineageTag: 57a9ddd4-3e0e-49e3-a7a4-febfa20a132b
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Years from current year
+	column RelativeYears = YEAR(TODAY()) - YEAR(dim_calendar[Date])
+		dataType: int64
+		lineageTag: f0441f7f-6911-422c-944c-fabdae2c4083
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Integer date key (YYYYMMDD format)
+	column DateKey = YEAR(dim_calendar[Date]) * 10000 + MONTH(dim_calendar[Date]) * 100 + DAY(dim_calendar[Date])
+		dataType: int64
+		isHidden
+		lineageTag: eea514ee-5239-47c3-ab99-5d7df4962334
+		summarizeBy: count
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Dynamic period label
+	column PeriodLabel = SWITCH(TRUE(), dim_calendar[Date] = TODAY(), "Today", dim_calendar[Date] = TODAY() - 1, "Yesterday", EOMONTH(dim_calendar[Date], 0) = EOMONTH(TODAY(), 0), "This Month", EOMONTH(dim_calendar[Date], 0) = EOMONTH(TODAY(), -1), "Last Month", YEAR(dim_calendar[Date]) = YEAR(TODAY()), "This Year", YEAR(dim_calendar[Date]) = YEAR(TODAY()) - 1, "Last Year", "Other")
+		dataType: string
+		lineageTag: 0099dee3-4718-4cf3-ad73-f623f7ecf6ac
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if within last 7 days
+	column IsLast7Days = dim_calendar[Date] >= TODAY() - 7 && dim_calendar[Date] < TODAY()
+		dataType: boolean
+		lineageTag: 453bdcd6-e91e-44e6-9a6b-1dc89e60c174
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if within last 30 days
+	column IsLast30Days = dim_calendar[Date] >= TODAY() - 30 && dim_calendar[Date] < TODAY()
+		dataType: boolean
+		lineageTag: 7cfc8af9-fe51-42a1-b7e5-c234cda5f1fe
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	/// True if within last 90 days
+	column IsLast90Days = dim_calendar[Date] >= TODAY() - 90 && dim_calendar[Date] < TODAY()
+		dataType: boolean
+		lineageTag: d554f2fd-db8e-46a0-a4ed-c55744a54177
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_calendar = calculated
+		mode: import
+		source = CALENDAR(DATE(2021, 1, 1), DATE(2024, 12, 31))
+

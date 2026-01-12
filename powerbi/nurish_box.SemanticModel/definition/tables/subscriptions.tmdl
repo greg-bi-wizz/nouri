@@ -1,0 +1,136 @@
+table subscriptions
+	lineageTag: 9c715fb2-f28e-4718-abcd-3390984bdcce
+
+	column subscription_id
+		dataType: string
+		lineageTag: 37f657a7-1ecf-4371-93cd-9da9c873a5bd
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: 76606117-a788-48ae-ac4c-12aa2a384a66
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_type
+		dataType: string
+		lineageTag: 5ed7fde6-8c68-42d9-950a-ab0a2a5729e1
+		summarizeBy: none
+		sourceColumn: plan_type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_name
+		dataType: string
+		lineageTag: baef6cd7-1c91-49b1-bfee-33f7be715f2a
+		summarizeBy: none
+		sourceColumn: plan_name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthly_price
+		dataType: double
+		lineageTag: a528a053-cd5e-49fe-a907-22c9f2eb4c58
+		summarizeBy: sum
+		sourceColumn: monthly_price
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 7069f92a-3b9d-479d-ab1f-0ac9b6d0d3f6
+		summarizeBy: none
+		sourceColumn: start_date
+
+		variation Variation
+			isDefault
+			relationship: 1b087d3b-f148-4211-8dfe-5b831c609e46
+			defaultHierarchy: LocalDateTable_2c5330d7-9652-4a3a-8b18-cb760f42647e.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 898802f5-cb51-4b5e-a3e7-18d005b6e0b7
+		summarizeBy: none
+		sourceColumn: end_date
+
+		variation Variation
+			isDefault
+			relationship: 9d606c70-5b43-4305-9164-f040ed801998
+			defaultHierarchy: LocalDateTable_1907b4ac-0e1c-484c-98e1-427537dfca22.'Date Hierarchy'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column status
+		dataType: string
+		lineageTag: 2c857f29-a7e4-4897-88bb-547f9c889a72
+		summarizeBy: none
+		sourceColumn: status
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column billing_cycle
+		dataType: string
+		lineageTag: ca3765d1-03c0-4481-a2e1-2fba1e01b82a
+		summarizeBy: none
+		sourceColumn: billing_cycle
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column auto_renew
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 229e1093-eb15-4a6b-836b-9642788b2259
+		summarizeBy: none
+		sourceColumn: auto_renew
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition subscriptions = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\subscriptions.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"subscription_id", type text}, {"customer_id", type text}, {"plan_type", type text}, {"plan_name", type text}, {"monthly_price", type number}, {"start_date", type date}, {"end_date", type date}, {"status", type text}, {"billing_cycle", type text}, {"auto_renew", type logical}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,93 @@
+table _Core_measures
+	lineageTag: e9658272-4383-4f9f-bb73-8f9c576095f7
+
+	measure 'Total Revenue' = sum(orders[order_total])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 1f9bfdbd-626b-4475-8dce-fcabc02cf860
+
+	/// Count of subscriptions active on the selected calendar date (respects date filter context)
+	measure 'Active Subscriptions' = DISTINCTCOUNT(subscription_dateBridge[subscription_id])
+		formatString: 0
+		lineageTag: 06fcb375-e6aa-4686-a7ac-812e1f13c682
+
+	measure 'Customer Lifetime Value' = AVERAGEX(VALUES(customers[customer_id]),CALCULATE([Total Revenue]))
+		lineageTag: 5754d94a-ed5e-4322-813d-35208d1f7f73
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Monthly Recurring Revenue - sums subscription prices filtered by DateBridge relationship to calendar date
+	measure MRR =
+			CALCULATE(
+			  SUMX(subscriptions, subscriptions[monthly_price]),
+			  FILTER(subscriptions, COUNTROWS(FILTER(subscription_dateBridge, subscription_dateBridge[subscription_id] = subscriptions[subscription_id])) > 0)
+			)
+		formatString: "$"#,##0.00;-"$"#,##0.00
+		lineageTag: ce5664c9-5e24-4d4e-885c-dd43a17dd2e8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MRR Growth Rate' = ```
+			
+			    VAR CurrentMRR = [MRR]
+			    VAR PreviousMRR = CALCULATE([MRR],DATEADD('orders'[order_date],-1,MONTH))
+			    RETURN DIVIDE(CurrentMRR-PreviousMRR,PreviousMRR,0)
+			```
+		lineageTag: d78cc8dd-5740-4d09-8301-3c1c3e567397
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Average Order Value' = DIVIDE([Total Revenue],COUNTROWS(orders),0)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: db7c508f-60da-421f-8693-4bc055ccc579
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	/// Total subscription revenue by plan type (use with plan_type or plan_name)
+	measure 'Revenue by Plan' = SUMX(subscriptions, subscriptions[monthly_price])
+		lineageTag: cf79d829-2171-47a0-91ad-02cab8f45f90
+
+	/// Customer Acquisition Cost - total order spend divided by customer count
+	measure 'CAC (Customer Acquisition Cost)' = VAR TotalSpent = SUMX(FILTER(orders, NOT(ISBLANK(orders[customer_id]))), orders[order_total]) VAR TotalCustomers = [Total Customers] RETURN DIVIDE(TotalSpent, TotalCustomers, 0)
+		formatString: "$"#,##0.00;-"$"#,##0.00
+		lineageTag: 292f97e6-effc-4211-b8c3-5ab8c535201e
+
+	/// Cumulative count of unique customers registered up to the selected date
+	measure 'Total Customers' =
+			CALCULATE(
+			  DISTINCTCOUNT(customers[customer_id]),
+			  FILTER(customers, customers[registration_date] <= MAX(dim_calendar[Date]))
+			)
+		formatString: 0
+		lineageTag: 3d483623-c1ea-4896-805b-5e81f34c7017
+
+	measure 'Total Orders' = ```
+			CALCULATE(
+			  DISTINCTCOUNT(orders[order_id]))
+			
+			```
+		formatString: 0
+		lineageTag: 9ca4d509-e26a-4882-9d0c-4aa7ef42df29
+
+	column measures
+		dataType: string
+		lineageTag: e51059c3-ef93-4e25-9358-bb6b3e75ce97
+		summarizeBy: none
+		sourceColumn: measures
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Core_measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [measures = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"measures", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

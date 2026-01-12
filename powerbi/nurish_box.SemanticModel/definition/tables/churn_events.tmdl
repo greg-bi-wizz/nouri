@@ -1,0 +1,124 @@
+table churn_events
+	lineageTag: 3ec5f84d-45dd-4bbe-94c1-6d77084d6a71
+
+	column churn_id
+		dataType: string
+		lineageTag: a1de052d-125f-402e-b69e-b42678e7b448
+		summarizeBy: none
+		sourceColumn: churn_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_id
+		dataType: string
+		lineageTag: 48615573-e2eb-45a3-bb54-bbe7ee9e20c5
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: f81c866e-b484-47d4-abc0-6193f69fb688
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column churn_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 68d0d7a6-ac2e-4b54-a3ae-9f6905976111
+		summarizeBy: none
+		sourceColumn: churn_date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column subscription_length_days
+		dataType: int64
+		formatString: 0
+		lineageTag: dbcad4ae-cac1-487c-b024-8e612d1c6ddb
+		summarizeBy: sum
+		sourceColumn: subscription_length_days
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column churn_reason
+		dataType: string
+		lineageTag: 9a71a03f-1e2c-426f-bdab-8805cf00be20
+		summarizeBy: none
+		sourceColumn: churn_reason
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column attempted_retention
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: d45a09da-3719-46b6-a5ff-7f203bee6c77
+		summarizeBy: none
+		sourceColumn: attempted_retention
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column retention_offer_accepted
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e5fc49ed-e9b5-4b1d-9c5c-7d95d8f7897e
+		summarizeBy: none
+		sourceColumn: retention_offer_accepted
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column feedback_provided
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5bf8d590-8881-41b5-91e9-77c912051104
+		summarizeBy: none
+		sourceColumn: feedback_provided
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column feedback_text
+		dataType: string
+		lineageTag: b55d39f2-d5e2-46ac-8b7d-9d94faa0b492
+		summarizeBy: none
+		sourceColumn: feedback_text
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition churn_events = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("Y:\Szkolenia\my_portfolio_p4_aigen_data\data\nourishbox\churn_events.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"churn_id", type text}, {"subscription_id", type text}, {"customer_id", type text}, {"churn_date", type date}, {"subscription_length_days", Int64.Type}, {"churn_reason", type text}, {"attempted_retention", type logical}, {"retention_offer_accepted", type logical}, {"feedback_provided", type logical}, {"feedback_text", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

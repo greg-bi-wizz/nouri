@@ -357,12 +357,40 @@ OUTPUT_DIR = 'data/nourishbox'       # Output directory
    - Cost per acquisition trends
    - Conversion funnel by campaign
 
+## ☁️ Cloud Deployment Options
+
+Deploy your data to cloud platforms for professional portfolio projects:
+
+### **Option 1: Databricks (Enterprise Big Data)**
+- **Free**: Community Edition available
+- **Best for**: Big data analytics, Apache Spark, ML pipelines
+- **Guide**: [DATABRICKS_SETUP.md](DATABRICKS_SETUP.md)
+- **Setup**: `python src/sync_to_databricks.py --clear`
+- **Portfolio Impact**: Delta Lake, Spark SQL, enterprise data engineering
+
+### **Option 2: Supabase (PostgreSQL Cloud)**
+- **Free**: 500 MB database
+- **Best for**: Power BI connection, REST API access
+- **Guide**: [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+- **Setup**: `python src/sync_to_supabase.py --clear`
+- **Portfolio Impact**: Cloud database, real-time BI dashboards
+
+### **Other Options**
+- **Google BigQuery**: Large-scale analytics (10 GB free)
+- **Kaggle Datasets**: Community visibility and sharing
+- **GitHub**: Version control and code showcase
+
+See full comparison and setup guides: [CLOUD_SETUP_GUIDE.md](CLOUD_SETUP_GUIDE.md)
+
+---
+
 ## 🛠️ Tools & Technologies
 
 This dataset can be used with:
 
 - **BI Tools**: Tableau, Power BI, Looker, Metabase, Qlik
-- **SQL Databases**: PostgreSQL, MySQL, SQLite, BigQuery, Snowflake
+- **Cloud Platforms**: Databricks, Supabase, BigQuery, Snowflake
+- **SQL Databases**: PostgreSQL, MySQL, SQLite
 - **Python**: pandas, matplotlib, seaborn, plotly, scikit-learn
 - **R**: tidyverse, ggplot2, caret, shiny
 - **Spreadsheets**: Excel, Google Sheets (sample data)

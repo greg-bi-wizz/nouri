@@ -1,0 +1,153 @@
+table marketing_campaigns
+	lineageTag: 3dba3d03-4632-4dd0-83ac-86575f34795e
+
+	column campaign_id
+		dataType: string
+		lineageTag: 9c0d0417-cdda-4195-9f5d-ae3d6af2d9ee
+		summarizeBy: none
+		sourceColumn: campaign_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column campaign_name
+		dataType: string
+		lineageTag: b1f7f8e4-6d75-41bd-8231-50dbaf335643
+		summarizeBy: none
+		sourceColumn: campaign_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column campaign_type
+		dataType: string
+		lineageTag: b9195ef7-7681-465b-b43b-7398ed5654f3
+		summarizeBy: none
+		sourceColumn: campaign_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2e868fbe-5374-4287-9b15-23da2e5dfe31
+		summarizeBy: none
+		sourceColumn: start_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 762f1fe4-cd53-4fa1-8ed1-040e0733fb71
+		summarizeBy: none
+		sourceColumn: end_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column budget
+		dataType: double
+		lineageTag: a82e0192-20f8-45cf-a993-83a1b05d20f0
+		summarizeBy: none
+		sourceColumn: budget
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column target_audience
+		dataType: string
+		lineageTag: e956ef46-41af-456f-87d5-2a6816302a1b
+		summarizeBy: none
+		sourceColumn: target_audience
+
+		annotation SummarizationSetBy = Automatic
+
+	column offer_type
+		dataType: string
+		lineageTag: b3540181-4ac7-433f-a772-48194194b83e
+		summarizeBy: none
+		sourceColumn: offer_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column offer_value
+		dataType: double
+		lineageTag: ea0ee108-17fc-40ec-9147-fa4899f09045
+		summarizeBy: none
+		sourceColumn: offer_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column impressions
+		dataType: int64
+		formatString: 0
+		lineageTag: 42830b7e-44ef-4651-b228-2d7e46871e7a
+		summarizeBy: none
+		sourceColumn: impressions
+
+		annotation SummarizationSetBy = Automatic
+
+	column clicks
+		dataType: int64
+		formatString: 0
+		lineageTag: 1598d9b1-f7b2-4e9a-8dcf-18c9d353ea46
+		summarizeBy: none
+		sourceColumn: clicks
+
+		annotation SummarizationSetBy = Automatic
+
+	column conversions
+		dataType: int64
+		formatString: 0
+		lineageTag: f7544032-14e2-46bf-ada2-1dbc2f7e665c
+		summarizeBy: none
+		sourceColumn: conversions
+
+		annotation SummarizationSetBy = Automatic
+
+	column ctr
+		dataType: double
+		lineageTag: ef87dfe0-f4e7-4fd9-b510-a149c3ac30d3
+		summarizeBy: none
+		sourceColumn: ctr
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column conversion_rate
+		dataType: double
+		lineageTag: 5edccd63-f7ee-4009-b1e1-eea584cfd61c
+		summarizeBy: none
+		sourceColumn: conversion_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cost_per_acquisition
+		dataType: double
+		lineageTag: 83bc2927-2f6a-499f-afd9-820e7ed89903
+		summarizeBy: none
+		sourceColumn: cost_per_acquisition
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'public marketing_campaigns' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_marketing_campaigns = Source{[Schema="public",Item="marketing_campaigns"]}[Data]
+				in
+				    public_marketing_campaigns
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,71 @@
+table dim_plan
+	lineageTag: 6152a6de-e89a-46f9-b245-9c3716a5312f
+
+	column plan_key
+		dataType: string
+		lineageTag: e351ee00-1f13-47bd-a410-493ad7dec435
+		summarizeBy: none
+		sourceColumn: plan_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_name
+		dataType: string
+		lineageTag: fdfb86f4-5c8c-4347-96dc-41f3db9c175b
+		summarizeBy: none
+		sourceColumn: plan_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: bfa95429-36b3-4e33-b70b-955249204a9c
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthly_price
+		dataType: double
+		lineageTag: c26f15d0-6bdf-4130-a995-c5b43524684f
+		summarizeBy: none
+		sourceColumn: monthly_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column meals_per_week
+		dataType: double
+		lineageTag: 3637ebf9-b514-42f6-a172-78367f2b99c9
+		summarizeBy: none
+		sourceColumn: meals_per_week
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column items_per_month
+		dataType: int64
+		lineageTag: 493f48eb-1f96-4f38-bff1-f19c0ed665de
+		summarizeBy: none
+		sourceColumn: items_per_month
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'public plan_dim' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_plan_dim = Source{[Schema="public",Item="plan_dim"]}[Data],
+				    #"Replaced Value" = Table.ReplaceValue(public_plan_dim,#nan,-1,Replacer.ReplaceValue,{"meals_per_week"})
+				in
+				    #"Replaced Value"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

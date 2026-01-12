@@ -1,0 +1,150 @@
+table orders
+	lineageTag: e7b14509-37a5-472a-8fbb-83e62ad02df7
+
+	column order_id
+		dataType: string
+		lineageTag: 523096b4-4aff-4cfe-b746-1feb5807232a
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_id
+		dataType: string
+		lineageTag: 1eb3fd06-7e9e-4fa1-b0e7-ccb1b7721f1b
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: fcb7bccc-1e7c-4ce5-bb14-7c122547821e
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 45be1827-861e-474a-add3-e266ab2c2bd1
+		summarizeBy: none
+		sourceColumn: order_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column delivery_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a385f299-ddb7-4ee3-b8b3-b013063970f4
+		summarizeBy: none
+		sourceColumn: delivery_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column order_total
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 8d86d041-5ddb-465e-b7b0-84e085528c2d
+		summarizeBy: sum
+		sourceColumn: order_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_status
+		dataType: string
+		lineageTag: 5bda9a0c-f8fc-49d5-be83-4ce889aab1cb
+		summarizeBy: none
+		sourceColumn: delivery_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_address_zip
+		dataType: string
+		lineageTag: fbf6318b-5807-49b9-b718-c65f9ae40c53
+		summarizeBy: none
+		sourceColumn: delivery_address_zip
+
+		annotation SummarizationSetBy = Automatic
+
+	column shipping_cost
+		dataType: double
+		lineageTag: 2b7615e5-f978-4609-881b-9ba37536dca9
+		summarizeBy: sum
+		sourceColumn: shipping_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column discount_applied
+		dataType: double
+		lineageTag: 0f2f52ac-f797-4cab-982e-3c46acfb72ed
+		summarizeBy: sum
+		sourceColumn: discount_applied
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column plan_type_at_order
+		dataType: string
+		lineageTag: 52fd91f0-75b3-4579-8ce1-dcf5ac312830
+		summarizeBy: none
+		sourceColumn: plan_type_at_order
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_price_at_order
+		dataType: double
+		lineageTag: 7c736641-a8fb-4437-a3d3-7fb0845005ee
+		summarizeBy: sum
+		sourceColumn: plan_price_at_order
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column campaign_id
+		dataType: string
+		lineageTag: e535db2b-1f4c-47a6-aa6f-a397176e0055
+		summarizeBy: none
+		sourceColumn: campaign_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 88a97ffd-1009-44f1-b0ef-98e9562dd3bb
+		summarizeBy: sum
+		sourceColumn: order_date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column year_month
+		dataType: string
+		lineageTag: 8eeb81cc-262b-424d-a4a2-4d749c0b587a
+		summarizeBy: none
+		sourceColumn: year_month
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public orders' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_orders = Source{[Schema="public",Item="orders"]}[Data]
+				in
+				    public_orders
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

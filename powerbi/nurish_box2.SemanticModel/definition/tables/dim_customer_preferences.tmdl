@@ -1,0 +1,71 @@
+table dim_customer_preferences
+	lineageTag: 03df53f3-d687-4e4b-b3d1-5e52ae1c4115
+
+	column customer_id
+		dataType: string
+		lineageTag: ba2a8346-8336-4a1a-a34e-593ef76bdd95
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column dietary_preferences
+		dataType: string
+		lineageTag: d6eaace4-1f92-4633-a409-16599840d17b
+		summarizeBy: none
+		sourceColumn: dietary_preferences
+
+		annotation SummarizationSetBy = Automatic
+
+	column beauty_preferences
+		dataType: string
+		lineageTag: bb6807c0-5c7f-4888-a939-04c84432e68a
+		summarizeBy: none
+		sourceColumn: beauty_preferences
+
+		annotation SummarizationSetBy = Automatic
+
+	column skin_type
+		dataType: string
+		lineageTag: 5f329aae-b221-497b-84fa-1c1756dee306
+		summarizeBy: none
+		sourceColumn: skin_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column allergies
+		dataType: string
+		lineageTag: 45a22dce-29bc-44e8-b6c2-032696fc4b62
+		summarizeBy: none
+		sourceColumn: allergies
+
+		annotation SummarizationSetBy = Automatic
+
+	column preferred_meal_time
+		dataType: string
+		lineageTag: 43a28c39-dda4-48a8-b824-a338c59a1b84
+		summarizeBy: none
+		sourceColumn: preferred_meal_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column household_size
+		dataType: int64
+		formatString: 0
+		lineageTag: be3262ed-b7a9-476e-9d60-b82f59ee4c07
+		summarizeBy: sum
+		sourceColumn: household_size
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public customer_preferences' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_customer_preferences = Source{[Schema="public",Item="customer_preferences"]}[Data]
+				in
+				    public_customer_preferences
+
+	annotation PBI_ResultType = Table
+

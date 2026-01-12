@@ -1,0 +1,85 @@
+table subscription_monthly
+	lineageTag: 1fe731a6-7351-4f4f-9885-8f297b910bb4
+
+	column snapshot_id
+		dataType: string
+		lineageTag: 0fe50cef-9c81-4eaf-afe6-aa1a00421528
+		summarizeBy: none
+		sourceColumn: snapshot_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_id
+		dataType: string
+		lineageTag: 8871ad33-d3da-4a2f-8290-fae98a53778d
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: a33c3b3b-0111-44d1-8cf2-a476c93deaa5
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_type
+		dataType: string
+		lineageTag: d1c9f0d7-60e6-4d37-a7c6-e841497f252b
+		summarizeBy: none
+		sourceColumn: plan_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_name
+		dataType: string
+		lineageTag: 8faea76b-9162-4a87-8e4e-b83e3ed10a09
+		summarizeBy: none
+		sourceColumn: plan_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_start
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 384cea63-4f32-4f98-995b-1e35afebadd0
+		summarizeBy: none
+		sourceColumn: month_start
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column status
+		dataType: string
+		lineageTag: a43ef5bc-8f3d-4349-b02b-f446266b95c9
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column mrr
+		dataType: double
+		lineageTag: 618508bb-ec35-4f89-8b05-5c0347163823
+		summarizeBy: sum
+		sourceColumn: mrr
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'public subscription_monthly' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_subscription_monthly = Source{[Schema="public",Item="subscription_monthly"]}[Data]
+				in
+				    public_subscription_monthly
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

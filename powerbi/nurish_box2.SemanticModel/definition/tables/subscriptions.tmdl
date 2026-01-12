@@ -1,0 +1,103 @@
+table subscriptions
+	lineageTag: 41bd6c25-228d-4313-8752-5330f052d22f
+
+	column subscription_id
+		dataType: string
+		lineageTag: 78bbbe2b-ca33-4411-bd3c-6bac936913a5
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: 130e1f27-106f-4c88-8126-01a8552d11f8
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_type
+		dataType: string
+		lineageTag: 5c59eaf7-25f7-4ad3-8be1-f978ac695e95
+		summarizeBy: none
+		sourceColumn: plan_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan_name
+		dataType: string
+		lineageTag: 66a81cab-2074-4109-b8a5-29e42998eea4
+		summarizeBy: none
+		sourceColumn: plan_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column monthly_price
+		dataType: double
+		lineageTag: 51b5c133-9bcd-405d-8de1-6ced77b401d7
+		summarizeBy: sum
+		sourceColumn: monthly_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column start_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6da6ff58-ccc8-47a9-98ec-439f0429a13d
+		summarizeBy: none
+		sourceColumn: start_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4204ba61-1e7e-4197-84ce-b25309f2a444
+		summarizeBy: none
+		sourceColumn: end_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column status
+		dataType: string
+		lineageTag: ab340cd6-a810-472e-9804-c9345ddcac40
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column billing_cycle
+		dataType: string
+		lineageTag: 434b8498-bfd0-4fe3-b828-264ad8dfb4ed
+		summarizeBy: none
+		sourceColumn: billing_cycle
+
+		annotation SummarizationSetBy = Automatic
+
+	column auto_renew
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 6f3eb3d0-6f38-4a09-96a6-5d3f2212b55a
+		summarizeBy: none
+		sourceColumn: auto_renew
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public subscriptions' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_subscriptions = Source{[Schema="public",Item="subscriptions"]}[Data]
+				in
+				    public_subscriptions
+
+	annotation PBI_ResultType = Table
+

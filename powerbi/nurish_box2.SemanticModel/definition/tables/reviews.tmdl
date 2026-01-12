@@ -1,0 +1,128 @@
+table reviews
+	lineageTag: 9c6ccbe0-4faa-4d9c-9cea-27e12d16d708
+
+	column review_id
+		dataType: string
+		lineageTag: 04cf1511-f48c-422b-8702-ab3b266dfb30
+		summarizeBy: none
+		sourceColumn: review_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: string
+		lineageTag: cb10cfdf-6214-468c-b352-4b891e6614b1
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: a82657c1-be74-4398-aaec-b3c211621449
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_id
+		dataType: string
+		lineageTag: 101aee11-dc6b-42d9-bb00-8ae180520584
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f4be094f-b506-49a6-9369-a420e4c8e416
+		summarizeBy: none
+		sourceColumn: review_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column rating
+		dataType: int64
+		formatString: 0
+		lineageTag: f2ac03af-e046-4c67-81be-a466e2d41a19
+		summarizeBy: sum
+		sourceColumn: rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_title
+		dataType: string
+		lineageTag: 76338ac2-dfb1-46d8-bbde-cfd867f22ea7
+		summarizeBy: none
+		sourceColumn: review_title
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_text
+		dataType: string
+		lineageTag: 0906f7d4-ac64-41ec-b2b7-3c1119066abe
+		summarizeBy: none
+		sourceColumn: review_text
+
+		annotation SummarizationSetBy = Automatic
+
+	column would_recommend
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 9e58bf2d-a0af-4ac7-855e-3362ff496c58
+		summarizeBy: none
+		sourceColumn: would_recommend
+
+		annotation SummarizationSetBy = Automatic
+
+	column meal_quality_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 9fa43045-7d56-4a54-8b93-0cb7d6663539
+		summarizeBy: sum
+		sourceColumn: meal_quality_rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column beauty_quality_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 111e8fc8-0c89-4b96-9147-19c085e6d5a5
+		summarizeBy: sum
+		sourceColumn: beauty_quality_rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 9571f919-3cee-42ad-a556-c6a18b3a46a2
+		summarizeBy: sum
+		sourceColumn: delivery_rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column value_rating
+		dataType: double
+		lineageTag: 3cb2f2a3-6ccb-4a91-a4c3-fec39ca21722
+		summarizeBy: sum
+		sourceColumn: value_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'public reviews' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_reviews = Source{[Schema="public",Item="reviews"]}[Data]
+				in
+				    public_reviews
+
+	annotation PBI_ResultType = Table
+

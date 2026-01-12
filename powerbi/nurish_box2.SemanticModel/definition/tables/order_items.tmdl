@@ -1,0 +1,128 @@
+table order_items
+	lineageTag: d84ac4f3-4d13-4d45-8de9-3e9985d65cf4
+
+	column item_id
+		dataType: string
+		lineageTag: 97640ad8-4ea5-4317-b3ec-ccd5f56a5601
+		summarizeBy: none
+		sourceColumn: item_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: string
+		lineageTag: 00171549-29e4-4b99-b90e-98a51d4a4983
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_id
+		dataType: string
+		lineageTag: 14965121-9063-4364-b993-bf4e695c916a
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_type
+		dataType: string
+		lineageTag: fea23cee-f08b-4582-ab3c-c79c1bf5b3d6
+		summarizeBy: none
+		sourceColumn: product_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: ae085a4d-6374-4c18-89cc-aa0a9615dfd1
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_category
+		dataType: string
+		lineageTag: 0bfb3d13-9596-4d33-b2f7-30c5e53f93a0
+		summarizeBy: none
+		sourceColumn: product_category
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 4d23c065-e77d-4ef2-972c-24d0866aa262
+		summarizeBy: sum
+		sourceColumn: quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_cost
+		dataType: double
+		lineageTag: a31dd10e-227d-4c8d-875f-5dca83a56f40
+		summarizeBy: sum
+		sourceColumn: unit_cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column line_price
+		dataType: double
+		lineageTag: a9f479a7-4070-4584-95d7-80a5553ccae7
+		summarizeBy: sum
+		sourceColumn: line_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column line_discount
+		dataType: double
+		lineageTag: 6ad49d08-7875-47e3-b5e8-26715c04cabb
+		summarizeBy: sum
+		sourceColumn: line_discount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column calories
+		dataType: int64
+		formatString: 0
+		lineageTag: 91abadc1-834f-4efe-b22f-6a793b8ece20
+		summarizeBy: sum
+		sourceColumn: calories
+
+		annotation SummarizationSetBy = Automatic
+
+	column retail_value
+		dataType: double
+		lineageTag: 5f98be03-b5f0-40c1-a8f6-cabee687b582
+		summarizeBy: sum
+		sourceColumn: retail_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column tags
+		dataType: string
+		lineageTag: ed1680e7-b0f2-4e54-a8e5-b0e5a5b5e317
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public order_items' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_order_items = Source{[Schema="public",Item="order_items"]}[Data]
+				in
+				    public_order_items
+
+	annotation PBI_ResultType = Table
+

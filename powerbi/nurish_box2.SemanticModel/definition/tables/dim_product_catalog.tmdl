@@ -1,0 +1,92 @@
+table dim_product_catalog
+	lineageTag: b2fe9d11-2c2a-4939-9062-ecb3e4b354c8
+
+	column product_id
+		dataType: string
+		lineageTag: 8258f363-4ba2-40bb-a7b2-acbaf07bc6b0
+		summarizeBy: none
+		sourceColumn: product_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_type
+		dataType: string
+		lineageTag: beaa34b6-3e4c-42d5-89f8-3e64a23a3b73
+		summarizeBy: none
+		sourceColumn: product_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 7a04c108-3cca-4649-ab34-8c6f3fae3627
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 75d02939-b6ca-449e-9a3d-253249efd8d2
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_to_company
+		dataType: double
+		lineageTag: 3b9616fd-fb63-49f7-b8c2-5d65c892cbd9
+		summarizeBy: sum
+		sourceColumn: cost_to_company
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column calories
+		dataType: int64
+		formatString: 0
+		lineageTag: 39903794-f7ce-475d-a074-e8e0c4a692cf
+		summarizeBy: sum
+		sourceColumn: calories
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: ddbbfe17-3545-4864-aae3-153c9d029995
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column active
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 00856657-ba66-4a0d-9209-201eb8279387
+		summarizeBy: none
+		sourceColumn: active
+
+		annotation SummarizationSetBy = Automatic
+
+	column retail_value
+		dataType: double
+		lineageTag: a347f3e7-11a9-451c-b1e9-f2b5ce5de629
+		summarizeBy: sum
+		sourceColumn: retail_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'public product_catalog' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_product_catalog = Source{[Schema="public",Item="product_catalog"]}[Data]
+				in
+				    public_product_catalog
+
+	annotation PBI_ResultType = Table
+

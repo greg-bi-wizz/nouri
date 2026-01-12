@@ -1,0 +1,35 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+/// Errors in queries that were loaded on 1/12/2026 6:08:44 PM.
+queryGroup 'Query Errors - 1/12/2026 6:08:44 PM'
+
+	annotation PBI_QueryGroupOrder = 0
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["public churn_events","public customer_preferences","public customers","public date_dim","public marketing_campaigns","public order_items","public orders","public plan_dim","public product_catalog","public reviews","public subscriptions","public subscription_monthly","Errors in public plan_dim"]
+
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
+
+ref table churn_events
+ref table dim_customer_preferences
+ref table dim_customers
+ref table dim_date
+ref table marketing_campaigns
+ref table order_items
+ref table orders
+ref table dim_plan
+ref table dim_product_catalog
+ref table reviews
+ref table subscriptions
+ref table subscription_monthly
+ref table _Base_Measures
+
+ref cultureInfo en-US
+

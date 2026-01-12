@@ -1,0 +1,131 @@
+table dim_customers
+	lineageTag: 6a06e569-af50-49c5-beda-f48ad93902e0
+
+	column customer_id
+		dataType: string
+		lineageTag: e01aa473-e27b-41f2-98d7-c82aad345ef4
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_name
+		dataType: string
+		lineageTag: 7f495e0b-81b4-4910-aa64-59c2fe4a757d
+		summarizeBy: none
+		sourceColumn: first_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_name
+		dataType: string
+		lineageTag: 7aaf9ae7-baba-4b60-b1c7-696a8c41a249
+		summarizeBy: none
+		sourceColumn: last_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column email
+		dataType: string
+		lineageTag: 6246ae4d-67d5-49cf-a72d-ff48515d57a3
+		summarizeBy: none
+		sourceColumn: email
+
+		annotation SummarizationSetBy = Automatic
+
+	column phone
+		dataType: string
+		lineageTag: d10e8bf7-e227-47a1-b7c5-19fc14f5e5ba
+		summarizeBy: none
+		sourceColumn: phone
+
+		annotation SummarizationSetBy = Automatic
+
+	column registration_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 308cc066-4b13-43c3-b295-7f4637957a5f
+		summarizeBy: none
+		sourceColumn: registration_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column acquisition_channel
+		dataType: string
+		lineageTag: c26c7995-4b3f-4b61-9e49-1383e0a79391
+		summarizeBy: none
+		sourceColumn: acquisition_channel
+
+		annotation SummarizationSetBy = Automatic
+
+	column age
+		dataType: int64
+		formatString: 0
+		lineageTag: f49050c1-8c6c-4f71-818b-e6d9496cc0cf
+		summarizeBy: sum
+		sourceColumn: age
+
+		annotation SummarizationSetBy = Automatic
+
+	column gender
+		dataType: string
+		lineageTag: 6214810a-44ee-4c1e-809c-b41baba9b3e6
+		summarizeBy: none
+		sourceColumn: gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column zip_code
+		dataType: string
+		lineageTag: 61161bfb-cd1c-4a1b-a5ce-67c18687d7f7
+		summarizeBy: none
+		sourceColumn: zip_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		lineageTag: e83fefc5-33c9-4971-8313-b7d065a2030c
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		lineageTag: 918f46d3-b227-4d21-909f-32efd7bc9c70
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	column referred_by_customer_id
+		dataType: string
+		lineageTag: cb1581fc-9643-4760-bdce-00bb326f5f04
+		summarizeBy: none
+		sourceColumn: referred_by_customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_new_year_signup
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 388bfdee-94c0-4e54-ac0b-c71ce1fcc68d
+		summarizeBy: none
+		sourceColumn: is_new_year_signup
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public customers' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_customers = Source{[Schema="public",Item="customers"]}[Data]
+				in
+				    public_customers
+
+	annotation PBI_ResultType = Table
+

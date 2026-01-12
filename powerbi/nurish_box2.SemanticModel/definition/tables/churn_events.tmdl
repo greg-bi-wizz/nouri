@@ -1,0 +1,101 @@
+table churn_events
+	lineageTag: 450bcd72-5721-4f1d-b6f8-3d4eae1351e1
+
+	column churn_id
+		dataType: string
+		lineageTag: eb72c1db-74c5-4f68-8656-a70c424d0ccf
+		summarizeBy: none
+		sourceColumn: churn_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscription_id
+		dataType: string
+		lineageTag: 59968851-cb88-482e-8984-fa3e82d4b5d1
+		summarizeBy: none
+		sourceColumn: subscription_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: a20a9c58-5b6e-4f8a-9b98-dfeec6bc1fb4
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column churn_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: bac22dfa-4f67-4c40-a31a-a549235b173a
+		summarizeBy: none
+		sourceColumn: churn_date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column subscription_length_days
+		dataType: int64
+		formatString: 0
+		lineageTag: 37225a9c-6a07-4e5b-a283-4fcf38b44be6
+		summarizeBy: sum
+		sourceColumn: subscription_length_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column churn_reason
+		dataType: string
+		lineageTag: edc6c419-8801-4b5c-947e-12772b5c5cc9
+		summarizeBy: none
+		sourceColumn: churn_reason
+
+		annotation SummarizationSetBy = Automatic
+
+	column attempted_retention
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: d547e1ca-c1c7-4fdf-9e54-cb4da7563d46
+		summarizeBy: none
+		sourceColumn: attempted_retention
+
+		annotation SummarizationSetBy = Automatic
+
+	column retention_offer_accepted
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 2cf0de98-9b18-4f64-81ce-31f779a8af27
+		summarizeBy: none
+		sourceColumn: retention_offer_accepted
+
+		annotation SummarizationSetBy = Automatic
+
+	column feedback_provided
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7bb67710-78c3-4986-b999-449e39aa165a
+		summarizeBy: none
+		sourceColumn: feedback_provided
+
+		annotation SummarizationSetBy = Automatic
+
+	column feedback_text
+		dataType: string
+		lineageTag: aa729419-f93a-4ad1-8b47-f37331fbe6e3
+		summarizeBy: none
+		sourceColumn: feedback_text
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public churn_events' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("aws-1-eu-west-1.pooler.supabase.com", "postgres"),
+				    public_churn_events = Source{[Schema="public",Item="churn_events"]}[Data]
+				in
+				    public_churn_events
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,75 @@
+relationship AutoDetected_0419bb7a-b161-4e2f-ac56-cec5d51e4591
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: churn_events.subscription_id
+	toColumn: subscriptions.subscription_id
+
+relationship AutoDetected_9f9c9237-23b7-4d65-acae-107317621459
+	fromColumn: orders.subscription_id
+	toColumn: subscriptions.subscription_id
+
+relationship AutoDetected_7f0fd200-ec6c-465d-b164-2b8c23665ba8
+	fromColumn: reviews.subscription_id
+	toColumn: subscriptions.subscription_id
+
+relationship AutoDetected_55eabbf6-7746-44ab-a5c4-6d13f1801a47
+	fromColumn: subscription_monthly.subscription_id
+	toColumn: subscriptions.subscription_id
+
+relationship AutoDetected_17780077-605b-49e3-8767-1cd0d79c531a
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: churn_events.customer_id
+	toColumn: dim_customer_preferences.customer_id
+
+relationship AutoDetected_2333c316-10db-46e0-9503-1bb55735120b
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: dim_customers.customer_id
+	toColumn: dim_customer_preferences.customer_id
+
+relationship AutoDetected_26e42501-b097-4124-8eef-b34195fedca4
+	isActive: false
+	fromColumn: orders.customer_id
+	toColumn: dim_customer_preferences.customer_id
+
+relationship AutoDetected_866e1d24-b3a9-4933-bafb-2848cbbfb586
+	isActive: false
+	fromColumn: reviews.customer_id
+	toColumn: dim_customer_preferences.customer_id
+
+relationship AutoDetected_acf88022-145b-49f0-8cbb-917c294abeb1
+	isActive: false
+	fromColumn: subscriptions.customer_id
+	toColumn: dim_customer_preferences.customer_id
+
+relationship AutoDetected_82d05d0a-cd15-4a97-9439-748de9fb3a9b
+	isActive: false
+	fromColumn: subscription_monthly.customer_id
+	toColumn: dim_customer_preferences.customer_id
+
+relationship AutoDetected_f770efbf-a67a-45e8-8a16-9ba03698f436
+	fromColumn: orders.campaign_id
+	toColumn: marketing_campaigns.campaign_id
+
+relationship AutoDetected_43c05413-b53d-4ad6-ae15-98596490651a
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: reviews.order_id
+	toColumn: orders.order_id
+
+relationship AutoDetected_6682a374-f60a-4464-aaaa-8da463412049
+	fromColumn: subscriptions.plan_name
+	toColumn: dim_plan.plan_name
+
+relationship AutoDetected_b4671d54-4d3e-4654-8fd1-35421ccc85f5
+	isActive: false
+	fromColumn: subscription_monthly.plan_name
+	toColumn: dim_plan.plan_name
+
+relationship 9f3bc794-d287-911c-64c3-b95b2df45882
+	isActive: false
+	fromColumn: subscriptions.customer_id
+	toColumn: dim_customers.customer_id
+

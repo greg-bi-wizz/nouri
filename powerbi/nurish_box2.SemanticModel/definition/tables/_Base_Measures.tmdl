@@ -1,0 +1,29 @@
+table _Base_Measures
+	lineageTag: db98b5dc-117b-4998-af33-8a329b96d8d4
+
+	measure 'Total Orders' = COUNTROWS(orders)
+		formatString: 0.000
+		lineageTag: 333a5b91-b5cc-4c89-b53b-38f2a1fffe58
+
+	measure 'Total Revenue' = sum(orders[order_total])
+		formatString: \$#,0.000;(\$#,0.000);\$#,0.000
+		lineageTag: 3df613eb-109a-4c46-a0b3-f80f9f1a5c66
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure AOV = DIVIDE([Total Revenue],[Total Orders])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: ed65d2fb-2d2a-4f48-86d0-0202e2ce8006
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column Measures
+		isHidden
+		lineageTag: 630458aa-6db3-4e19-8f2e-4ece2f05312f
+		isNameInferred
+		sourceColumn: [Measures]
+
+	partition _Base_Measures = calculated
+		mode: import
+		source = ROW("Measures", 1)
+

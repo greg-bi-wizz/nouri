@@ -643,7 +643,7 @@ def generate_order_items(orders_df, subscriptions_df, preferences_df, products_d
                     'product_category': beauty['category'],
                     'quantity': 1,
                     'unit_cost': beauty['cost_to_company'],
-                    'calories': None,
+                    'calories': -1,  # No calories for beauty products
                     'retail_value': beauty['retail_value'],
                     'tags': beauty['tags']
                 })
@@ -825,7 +825,8 @@ def generate_product_catalog():
             'cost_to_company': meal['cost'],
             'calories': meal['calories'],
             'tags': ', '.join(meal['tags']),
-            'active': random.choice([True, True, True, False])  # 75% active
+            'active': random.choice([True, True, True, False]),  # 75% active
+            'retail_value': round(meal['cost'] * MEAL_PRICE_MARKUP, 2)
         }
         products.append(product)
         product_id += 1
@@ -838,6 +839,7 @@ def generate_product_catalog():
             'product_name': beauty['name'],
             'category': beauty['category'],
             'cost_to_company': beauty['cost'],
+            'calories': -1,  # No calories for beauty products
             'retail_value': beauty['retail_value'],
             'tags': ', '.join(beauty['tags']),
             'active': random.choice([True, True, True, False])

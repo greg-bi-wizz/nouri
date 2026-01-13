@@ -172,9 +172,11 @@ class SupabaseSync:
                 columns.append(f'    {col} DATE')
             elif name_lower.endswith('_id') and col != primary_key:
                 columns.append(f'    {col} TEXT')
-            elif name_lower in ['rating', 'age', 'household_size', 'quantity', 'calories',
+            elif name_lower in ['rating', 'age', 'household_size', 'quantity',
                                 'year', 'quarter', 'month', 'day', 'day_of_week']:
                 columns.append(f'    {col} INTEGER')
+            elif name_lower == 'calories':
+                columns.append(f'    {col} DECIMAL(10, 2)')
             elif any(keyword in name_lower for keyword in decimal_keywords):
                 columns.append(f'    {col} DECIMAL(14, 2)')
             elif str(dtype) == 'int64':

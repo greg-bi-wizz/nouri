@@ -73,3 +73,30 @@ relationship 9f3bc794-d287-911c-64c3-b95b2df45882
 	fromColumn: subscriptions.customer_id
 	toColumn: dim_customers.customer_id
 
+relationship 779aa1be-b2c8-5e3d-b690-e45691f5a293
+	fromColumn: subscription_monthly.month_start
+	toColumn: dim_date.date
+
+relationship order_items_to_product_catalog
+	fromColumn: order_items.product_id
+	toColumn: dim_product_catalog.product_id
+
+relationship orders_to_dim_date
+	fromColumn: orders.order_date
+	toColumn: dim_date.date
+
+relationship subscriptions_start_to_dim_date
+	isActive: false
+	fromColumn: subscriptions.start_date
+	toColumn: dim_date.date
+
+relationship churn_events_to_dim_date
+	isActive: false
+	fromColumn: churn_events.churn_date
+	toColumn: dim_date.date
+
+relationship reviews_to_dim_date
+	isActive: false
+	fromColumn: reviews.review_date
+	toColumn: dim_date.date
+

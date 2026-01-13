@@ -1,3 +1,4 @@
+/// Nurish Box subscription business model with comprehensive analytics capabilities including revenue, subscription, churn, customer satisfaction, and marketing metrics. Time Intelligence enabled with dim_date as the primary date table.
 model Model
 	culture: en-US
 	defaultPowerBIDataSourceVersion: powerBI_V3
@@ -30,6 +31,7 @@ ref table reviews
 ref table subscriptions
 ref table subscription_monthly
 ref table _Base_Measures
+ref table _Relationship_Guide
 
 ref cultureInfo en-US
 

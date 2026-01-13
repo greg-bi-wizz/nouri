@@ -1,0 +1,52 @@
+/// Documentation table listing inactive relationships and when to use USERELATIONSHIP() to activate them
+table _Relationship_Guide
+	isHidden
+	lineageTag: b28ee2aa-9afe-4025-a8ab-9d6bbee6e57a
+
+	column Relationship
+		lineageTag: e031a1ad-0e44-449f-9afe-3d4e011a1182
+		isNameInferred
+		sourceColumn: [Relationship]
+
+	column 'From Table'
+		lineageTag: e1a23335-3eed-4159-a47b-435c679cdea3
+		isNameInferred
+		sourceColumn: [From Table]
+
+	column 'To Table'
+		lineageTag: 41cd3d2c-30ac-4f21-a6ac-922ce2c2b85c
+		isNameInferred
+		sourceColumn: [To Table]
+
+	column 'Use Case'
+		lineageTag: a2b3aa75-1bd3-40e2-9279-29be25b3ab81
+		isNameInferred
+		sourceColumn: [Use Case]
+
+	column 'DAX Pattern'
+		lineageTag: d206080f-23bf-476d-860e-43da9528e29e
+		isNameInferred
+		sourceColumn: [DAX Pattern]
+
+	partition _Relationship_Guide = calculated
+		mode: import
+		source =
+				DATATABLE(
+				    "Relationship", STRING,
+				    "From Table", STRING,
+				    "To Table", STRING,
+				    "Use Case", STRING,
+				    "DAX Pattern", STRING,
+				    {
+				        {"orders[customer_id] > dim_customer_preferences[customer_id]", "orders", "dim_customer_preferences", "Analyze orders by customer dietary/beauty preferences", "CALCULATE([Measure], USERELATIONSHIP(orders[customer_id], dim_customer_preferences[customer_id]))"},
+				        {"reviews[customer_id] > dim_customer_preferences[customer_id]", "reviews", "dim_customer_preferences", "Analyze reviews by customer preferences", "CALCULATE([Measure], USERELATIONSHIP(reviews[customer_id], dim_customer_preferences[customer_id]))"},
+				        {"subscriptions[customer_id] > dim_customer_preferences[customer_id]", "subscriptions", "dim_customer_preferences", "Analyze subscriptions by customer preferences", "CALCULATE([Measure], USERELATIONSHIP(subscriptions[customer_id], dim_customer_preferences[customer_id]))"},
+				        {"subscriptions[customer_id] > dim_customers[customer_id]", "subscriptions", "dim_customers", "Analyze subscriptions by customer demographics", "CALCULATE([Measure], USERELATIONSHIP(subscriptions[customer_id], dim_customers[customer_id]))"},
+				        {"subscription_monthly[plan_name] > dim_plan[plan_name]", "subscription_monthly", "dim_plan", "Analyze monthly snapshots by plan details", "CALCULATE([Measure], USERELATIONSHIP(subscription_monthly[plan_name], dim_plan[plan_name]))"},
+				        {"reviews[order_id] > orders[order_id]", "reviews", "orders", "Link reviews directly to order details", "CALCULATE([Measure], USERELATIONSHIP(reviews[order_id], orders[order_id]))"},
+				        {"subscriptions[start_date] > dim_date[date]", "subscriptions", "dim_date", "Analyze subscriptions by start date timeline", "CALCULATE([Measure], USERELATIONSHIP(subscriptions[start_date], dim_date[date]))"},
+				        {"churn_events[churn_date] > dim_date[date]", "churn_events", "dim_date", "Analyze churn events by date timeline", "CALCULATE([Measure], USERELATIONSHIP(churn_events[churn_date], dim_date[date]))"},
+				        {"reviews[review_date] > dim_date[date]", "reviews", "dim_date", "Analyze reviews by date timeline", "CALCULATE([Measure], USERELATIONSHIP(reviews[review_date], dim_date[date]))"}
+				    }
+				)
+

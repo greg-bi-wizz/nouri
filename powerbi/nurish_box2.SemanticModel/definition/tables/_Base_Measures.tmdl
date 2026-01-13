@@ -17,6 +17,413 @@ table _Base_Measures
 
 		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
 
+	measure 'Active Subs' = CALCULATE(DISTINCTCOUNT(subscriptions[subscription_id]), subscriptions[status] = "active")
+		formatString: 0
+		lineageTag: 8db403b5-065e-4134-94f3-dfc02fb79469
+
+	/// Core subscription revenue metric
+	measure MRR = SUM(subscription_monthly[mrr])
+		displayFolder: Subscription & MRR
+		lineageTag: 61a6ce3a-2101-44e4-9cbe-a7d590a80e97
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Tracks product volume independent of revenue
+	measure 'Total Items Sold' = SUM(order_items[quantity])
+		formatString: 0
+		displayFolder: Revenue & Orders
+		lineageTag: 1a5d7f59-394d-443e-94b5-06832b83c8fc
+
+	/// Calculates profit after product costs
+	measure 'Gross Margin' =
+			SUMX(
+			    order_items,
+			    order_items[line_price] - (order_items[quantity] * RELATED(dim_product_catalog[cost_to_company]))
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Revenue & Orders
+		lineageTag: 8bc4e9fb-445c-4873-8d42-65f4a6ea0863
+
+	/// Profitability percentage for benchmarking
+	measure 'Gross Margin %' = DIVIDE([Gross Margin], [Total Revenue], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Revenue & Orders
+		lineageTag: 12d7557f-e501-4d25-8f7a-95cf0a08af98
+
+	/// Monitors discounting levels as percentage of gross revenue
+	measure 'Discount Rate' =
+			DIVIDE(
+			    SUM(orders[discount_applied]),
+			    SUM(orders[order_total]) + SUM(orders[discount_applied]),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Revenue & Orders
+		lineageTag: d5d6d4cc-20b7-485d-8020-97a8c152c8ee
+
+	/// Tracks shipping as percentage of revenue
+	measure 'Shipping Revenue Ratio' = DIVIDE(SUM(orders[shipping_cost]), [Total Revenue], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Revenue & Orders
+		lineageTag: bb899bb2-33da-4620-b528-a85f3caf44a5
+
+	/// Cumulative revenue for the year
+	measure 'Revenue YTD' = TOTALYTD([Total Revenue], dim_date[date])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: ef11f979-be84-4ab2-bbe4-611ca4cd460c
+
+	/// Cumulative revenue for current month
+	measure 'Revenue MTD' = TOTALMTD([Total Revenue], dim_date[date])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: d5cb2b4a-6c97-43be-9eba-ab12fc127b32
+
+	/// Cumulative revenue for current quarter
+	measure 'Revenue QTD' = TOTALQTD([Total Revenue], dim_date[date])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: 6bad2f13-5d0f-4f78-bdc5-06734df699aa
+
+	/// Last month revenue for comparison
+	measure 'Revenue PM' =
+			CALCULATE(
+			    [Total Revenue],
+			    DATEADD(dim_date[date], -1, MONTH)
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: 7089fe57-3ea3-4f85-8e72-3967037c81e6
+
+	/// Absolute monthly revenue change
+	measure 'Revenue MoM Change' = [Total Revenue] - [Revenue PM]
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: 01cbad74-ff61-4138-914d-edc9c983807c
+
+	/// Percentage monthly growth
+	measure 'Revenue MoM %' = DIVIDE([Revenue MoM Change], [Revenue PM], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Time Intelligence
+		lineageTag: 3400ed62-e73a-4c5a-a438-62f1809b23b3
+
+	/// Same period last year revenue
+	measure 'Revenue PY' =
+			CALCULATE(
+			    [Total Revenue],
+			    SAMEPERIODLASTYEAR(dim_date[date])
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: 25a9efad-d32c-4f30-9d46-63e1815fa706
+
+	/// Absolute yearly revenue variance
+	measure 'Revenue YoY Change' = [Total Revenue] - [Revenue PY]
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: a938686c-b802-453c-b1cb-108021c2a9b4
+
+	/// Percentage yearly growth
+	measure 'Revenue YoY %' = DIVIDE([Revenue YoY Change], [Revenue PY], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Time Intelligence
+		lineageTag: cc751696-24bf-4c00-ad16-f406040389ed
+
+	/// Total subscription count regardless of status
+	measure 'Total Subscriptions' = DISTINCTCOUNT(subscriptions[subscription_id])
+		formatString: 0
+		displayFolder: Subscription & MRR
+		lineageTag: 964c0d6b-7c1b-4c8c-b051-8044639edcf0
+
+	/// Health indicator of subscription base
+	measure 'Active Subscription Rate' = DIVIDE([Active Subs], [Total Subscriptions], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Subscription & MRR
+		lineageTag: 4bb579f3-84c9-4c29-8ca1-6ad6e361786d
+
+	/// Revenue efficiency per customer
+	measure ARPU = DIVIDE([Total Revenue], DISTINCTCOUNT(orders[customer_id]), 0)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Subscription & MRR
+		lineageTag: 8ac59692-81b7-445c-b184-ffc6aa06c7d3
+
+	/// Average customer retention duration in days
+	measure 'Avg Subscription Length' =
+			AVERAGEX(
+			    FILTER(subscriptions, subscriptions[status] = "cancelled" || subscriptions[status] = "expired"),
+			    DATEDIFF(subscriptions[start_date], subscriptions[end_date], DAY)
+			)
+		formatString: 0.0
+		displayFolder: Subscription & MRR
+		lineageTag: 048f0a2d-5f55-4587-a87b-c800bdeb11ae
+
+	/// Count of customers who churned
+	measure 'Churned Customers' = DISTINCTCOUNT(churn_events[customer_id])
+		formatString: 0
+		displayFolder: Churn & Retention
+		lineageTag: b5ab8541-e6e3-4d6d-b7c8-a7be8c62eba0
+
+	/// Percentage of customer attrition
+	measure 'Churn Rate' =
+			DIVIDE(
+			    [Churned Customers],
+			    [Churned Customers] + DISTINCTCOUNT(subscriptions[customer_id]),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Churn & Retention
+		lineageTag: fffefb72-73de-4f8b-9c66-a8d3b2b5f141
+
+	/// Percentage of customers retained
+	measure 'Retention Rate' = 1 - [Churn Rate]
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Churn & Retention
+		lineageTag: 48f5c1bd-a994-4b6e-8706-9ef987746c19
+
+	/// Effectiveness of retention campaigns
+	measure 'Retention Offer Success Rate' =
+			DIVIDE(
+			    COUNTROWS(FILTER(churn_events, churn_events[retention_offer_accepted] = TRUE)),
+			    COUNTROWS(FILTER(churn_events, churn_events[attempted_retention] = TRUE)),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Churn & Retention
+		lineageTag: 4024bad9-9600-4f2f-9f67-a11af0a1ce77
+
+	/// Distribution of churn reasons
+	measure 'Churn by Reason %' =
+			DIVIDE(
+			    COUNTROWS(churn_events),
+			    CALCULATE(COUNTROWS(churn_events), REMOVEFILTERS(churn_events[churn_reason])),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Churn & Retention
+		lineageTag: 1a85d5a7-ca9b-4375-b013-936548b2c046
+
+	/// Overall customer satisfaction score
+	measure 'Avg Rating' = AVERAGE(reviews[rating])
+		formatString: 0.00
+		displayFolder: Customer Satisfaction
+		lineageTag: 3493d14f-7606-412a-bdab-1bc6692e9afc
+
+	/// Proxy for Net Promoter Score
+	measure 'Would Recommend %' =
+			DIVIDE(
+			    COUNTROWS(FILTER(reviews, reviews[would_recommend] = TRUE)),
+			    COUNTROWS(reviews),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Customer Satisfaction
+		lineageTag: be393060-328f-46e5-86c1-edf809342cbe
+
+	/// Product-specific quality tracking for meals
+	measure 'Avg Meal Quality' = AVERAGE(reviews[meal_quality_rating])
+		formatString: 0.00
+		displayFolder: Customer Satisfaction
+		lineageTag: 695c91ab-e82d-441e-a094-f6f11be424a1
+
+	/// Beauty product quality rating
+	measure 'Avg Beauty Quality' = AVERAGE(reviews[beauty_quality_rating])
+		formatString: 0.00
+		displayFolder: Customer Satisfaction
+		lineageTag: 63d05f4f-7808-471f-928e-a9c44ee65294
+
+	/// Logistics performance tracking
+	measure 'Avg Delivery Rating' = AVERAGE(reviews[delivery_rating])
+		formatString: 0.00
+		displayFolder: Customer Satisfaction
+		lineageTag: 8f3cd321-3800-46eb-ba4d-65cdc559fc88
+
+	/// Customer engagement - how many orders get reviewed
+	measure 'Review Response Rate' =
+			DIVIDE(
+			    COUNTROWS(reviews),
+			    [Total Orders],
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Customer Satisfaction
+		lineageTag: d07f670e-ecb4-461d-bdc0-80e3af653b0c
+
+	/// Return on marketing investment
+	measure 'Campaign ROI' =
+			DIVIDE(
+			    [Total Revenue] - SUM(marketing_campaigns[budget]),
+			    SUM(marketing_campaigns[budget]),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Marketing
+		lineageTag: ec5092f6-75b5-451a-98cf-c89d7eb820d5
+
+	/// Real cost to acquire a customer
+	measure 'Actual CPA' =
+			DIVIDE(
+			    SUM(marketing_campaigns[budget]),
+			    DISTINCTCOUNT(orders[customer_id]),
+			    0
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Marketing
+		lineageTag: 38ead911-948a-4ae8-a7f4-acf6abf73481
+
+	/// Marketing funnel efficiency
+	measure 'Overall Conversion Rate' =
+			DIVIDE(
+			    SUM(marketing_campaigns[conversions]),
+			    SUM(marketing_campaigns[clicks]),
+			    0
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Marketing
+		lineageTag: c2c631b3-91ec-4df0-9b66-e3834959bc50
+
+	/// Total marketing spend
+	measure 'Total Marketing Spend' = SUM(marketing_campaigns[budget])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Marketing
+		lineageTag: 81ee7959-4cdf-4430-83e1-5912955150c7
+
+	/// Marketing efficiency ratio
+	measure 'Revenue per Marketing Dollar' = DIVIDE([Total Revenue], SUM(marketing_campaigns[budget]), 0)
+		formatString: 0.00
+		displayFolder: Marketing
+		lineageTag: 4462045f-d85b-4489-821f-8165a778c545
+
+	/// Cumulative orders for the year
+	measure 'Orders YTD' = TOTALYTD([Total Orders], dim_date[date])
+		formatString: 0
+		displayFolder: Time Intelligence
+		lineageTag: dd8a0be6-26e8-405a-a8b5-a66b9da27195
+
+	/// Last month order count for comparison
+	measure 'Orders PM' =
+			CALCULATE(
+			    [Total Orders],
+			    DATEADD(dim_date[date], -1, MONTH)
+			)
+		formatString: 0
+		displayFolder: Time Intelligence
+		lineageTag: 1b71f163-7bec-4340-b0c0-97f44d9510c7
+
+	/// Last month MRR for comparison
+	measure 'MRR PM' =
+			CALCULATE(
+			    [MRR],
+			    DATEADD(dim_date[date], -1, MONTH)
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: ffaf1bb4-aeb1-4cf5-9047-a47cc71f4868
+
+	/// Monthly subscription revenue growth rate
+	measure 'MRR Growth Rate' = DIVIDE([MRR] - [MRR PM], [MRR PM], 0)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Time Intelligence
+		lineageTag: f55cd8ab-dd4b-46fc-abbf-dd2870070a17
+
+	/// 3-month rolling average to smooth volatility
+	measure 'Revenue 3M Avg' =
+			AVERAGEX(
+			    DATESINPERIOD(dim_date[date], MAX(dim_date[date]), -3, MONTH),
+			    [Total Revenue]
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: de330653-9b93-4eaa-83d0-8a6d34faf909
+
+	/// Trailing twelve months revenue - annualized view
+	measure 'Revenue TTM' =
+			CALCULATE(
+			    [Total Revenue],
+			    DATESINPERIOD(dim_date[date], MAX(dim_date[date]), -12, MONTH)
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Time Intelligence
+		lineageTag: 9effcd2d-abca-4075-9982-d7adb09d668a
+
+	/// Use this measure to analyze churns by date using dim_date. Uses USERELATIONSHIP to activate the churn_events to dim_date relationship.
+	measure 'Churned Customers by Date' =
+			CALCULATE(
+			    [Churned Customers],
+			    USERELATIONSHIP(churn_events[churn_date], dim_date[date])
+			)
+		formatString: 0
+		displayFolder: Time Intelligence (Inactive Rels)
+		lineageTag: a3e6e2c5-c8c2-4c6e-8f51-f6757fd5b049
+
+	/// Use this measure to analyze subscriptions by start date using dim_date. Uses USERELATIONSHIP to activate the subscriptions to dim_date relationship.
+	measure 'Subscriptions by Start Date' =
+			CALCULATE(
+			    [Total Subscriptions],
+			    USERELATIONSHIP(subscriptions[start_date], dim_date[date])
+			)
+		formatString: 0
+		displayFolder: Time Intelligence (Inactive Rels)
+		lineageTag: 4b9e98ae-21d7-45b6-89ef-e5a8f98c45ba
+
+	/// Use this measure to analyze reviews by date using dim_date. Uses USERELATIONSHIP to activate the reviews to dim_date relationship.
+	measure 'Reviews by Date' =
+			CALCULATE(
+			    COUNTROWS(reviews),
+			    USERELATIONSHIP(reviews[review_date], dim_date[date])
+			)
+		formatString: 0
+		displayFolder: Time Intelligence (Inactive Rels)
+		lineageTag: 4df089d9-16c4-459b-a0a9-539b32fa9aee
+
+	/// Use this measure to analyze ratings over time using dim_date.
+	measure 'Avg Rating by Date' =
+			CALCULATE(
+			    [Avg Rating],
+			    USERELATIONSHIP(reviews[review_date], dim_date[date])
+			)
+		formatString: 0.00
+		displayFolder: Time Intelligence (Inactive Rels)
+		lineageTag: d9a6ad57-53c0-46b1-a06d-7c46467ffbfe
+
+	/// Use this measure to analyze churn rate by subscription start cohort.
+	measure 'Churn Rate by Start Date' =
+			CALCULATE(
+			    [Churn Rate],
+			    USERELATIONSHIP(subscriptions[start_date], dim_date[date])
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Time Intelligence (Inactive Rels)
+		lineageTag: 9c538892-75d3-4260-a0b7-291b5f2fed22
+
+	/// Use with orders[customer_id] to dim_customer_preferences via USERELATIONSHIP
+	measure 'Orders by Preference' =
+			CALCULATE(
+			    [Total Orders],
+			    USERELATIONSHIP(orders[customer_id], dim_customer_preferences[customer_id])
+			)
+		formatString: 0
+		displayFolder: Customer Preference Analysis
+		lineageTag: 04cc52b8-7156-4416-92b8-0308c5e508ef
+
+	/// Use with subscriptions[customer_id] to dim_customers via USERELATIONSHIP
+	measure 'Active Subs by Customer Demo' =
+			CALCULATE(
+			    [Active Subs],
+			    USERELATIONSHIP(subscriptions[customer_id], dim_customers[customer_id])
+			)
+		formatString: 0
+		displayFolder: Customer Analysis
+		lineageTag: a42f1e1d-9a31-4c0f-a0f6-fd167f4921e8
+
+	/// Total lifetime revenue per customer - use with customer dimension for analysis
+	measure 'Customer Lifetime Value' =
+			SUMX(
+			    VALUES(dim_customers[customer_id]),
+			    CALCULATE(SUM(orders[order_total]))
+			)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		displayFolder: Customer Analysis
+
 	column Measures
 		isHidden
 		lineageTag: 630458aa-6db3-4e19-8f2e-4ece2f05312f

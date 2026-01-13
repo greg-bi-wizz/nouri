@@ -90,6 +90,11 @@ table subscriptions
 
 		annotation SummarizationSetBy = Automatic
 
+	/// Subscription cohort based on start month
+	column 'Subscription Cohort' = FORMAT(subscriptions[start_date], "YYYY-MM")
+		dataType: string
+		lineageTag: 454edd16-5bc1-4dc5-ab3c-fb55849fc318
+
 	partition 'public subscriptions' = m
 		mode: import
 		source =

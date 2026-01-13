@@ -1,0 +1,147 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "7ff84931b7507a6d673b",
+  "position": {
+    "x": 9.7030953885028417,
+    "y": 0,
+    "z": 0,
+    "height": 393.78395451674032,
+    "width": 578.95135818066956,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "filledMap",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_customers"
+                    }
+                  },
+                  "Property": "state"
+                }
+              },
+              "queryRef": "dim_customers.state",
+              "nativeQueryRef": "state",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_customers"
+                    }
+                  },
+                  "Property": "city"
+                }
+              },
+              "queryRef": "dim_customers.city",
+              "nativeQueryRef": "city",
+              "active": false
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_customers"
+                    }
+                  },
+                  "Property": "zip_code"
+                }
+              },
+              "queryRef": "dim_customers.zip_code",
+              "nativeQueryRef": "zip_code",
+              "active": false
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_customers"
+                    }
+                  },
+                  "Property": "gender"
+                }
+              },
+              "queryRef": "dim_customers.gender",
+              "nativeQueryRef": "gender"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "fa493bfa2cc0a569e354",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_customers"
+              }
+            },
+            "Property": "state"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "f4b65083ccc5a51ac134",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_customers"
+              }
+            },
+            "Property": "city"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "f966b22818129e69b1d3",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_customers"
+              }
+            },
+            "Property": "zip_code"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "31e6ee1148390a768b23",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_customers"
+              }
+            },
+            "Property": "gender"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

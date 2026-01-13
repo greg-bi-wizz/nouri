@@ -118,6 +118,31 @@ table dim_customers
 
 		annotation SummarizationSetBy = Automatic
 
+	/// Customer cohort based on registration month
+	column 'Registration Cohort' = FORMAT(dim_customers[registration_date], "YYYY-MM")
+		dataType: string
+		lineageTag: 91324fa7-4b49-4ef4-96d5-340f86ff0652
+
+	/// Days since customer registration
+	column 'Customer Age Days' = DATEDIFF(dim_customers[registration_date], TODAY(), DAY)
+		dataType: int64
+		formatString: 0
+		lineageTag: 34134045-3a67-48b2-be8f-c7bd2a43b62e
+
+	/// Customer age segment for analysis
+	column 'Age Group' =
+			SWITCH(
+			    TRUE(),
+			    dim_customers[age] < 25, "18-24",
+			    dim_customers[age] < 35, "25-34",
+			    dim_customers[age] < 45, "35-44",
+			    dim_customers[age] < 55, "45-54",
+			    dim_customers[age] < 65, "55-64",
+			    "65+"
+			)
+		dataType: string
+		lineageTag: ffecef0c-eedd-4af3-adac-bbd98ec27cb7
+
 	partition 'public customers' = m
 		mode: import
 		source =
